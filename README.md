@@ -12,20 +12,13 @@ AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
   → ArcGIS Pro SDK／目前開啟的地圖
 ```
 
-## Codex Plugin
+## 同事安裝
 
 前往 [v0.3.1 Release](https://github.com/joshisman0925/arcgis-pro-mcp/releases/tag/v0.3.1)，下載 Windows ZIP 與 SHA256SUMS。已包含 MCP 執行依賴及編譯好的 Pro Add-in，使用者不需要 Git、npm install 或 .NET SDK。需要 Windows、Node.js 20+ 與已授權的 Pro 3.3 或相容的後續 3.x。
 
 **把 [安裝提示詞](INSTALL-PROMPT.md) 交給你的 AI，即可引導檢查、備份與安裝。** 不支援本機 stdio／本機檔案操作的雲端 AI 無法直接安裝。
 
-Codex 使用自訂市集：
-
-```text
-codex plugin marketplace add joshisman0925/arcgis-pro-mcp
-codex plugin add arcgis-pro-mcp@joshisman-gis
-```
-
-安裝後執行 setup skill 安裝 Add-in，正常開啟 Pro 與地圖，再重新連線。已有手動 MCP 的使用者應先備份設定，驗證後只保留一個來源。這是公開自訂市集，尚未通過 OpenAI 官方目錄審核；申請條件見 [PUBLISHING.md](PUBLISHING.md)。
+依安裝提示詞完成安裝後，正常開啟 Pro 與地圖，再重新連線即可使用。已有 MCP 設定的使用者應先備份設定，驗證後只保留一個來源，避免重複安裝。
 
 Pro 版本策略見 [COMPATIBILITY.md](COMPATIBILITY.md)：共用一份 MCP，只有 SDK 二進位相容性需要時才增加 Add-in 建置版本，目前實測基準為 Pro 3.3。
 
@@ -70,7 +63,7 @@ Pro 版本策略見 [COMPATIBILITY.md](COMPATIBILITY.md)：共用一份 MCP，�
 - Codex：參考 `codex-mcp.example.toml`，將區段合併到用戶端的 `config.toml`。
 - 支援傳統本機 MCP JSON 設定的 Claude Desktop：參考 `claude-mcp.example.json`，合併到既有 `mcpServers`，不要覆寫其他設定。
 - 修改範例中的專案路徑；若 `node` 不在用戶端的 PATH，將 command 改成 `node.exe` 的完整路徑。
-- 已提供 Codex Plugin 與 Add-in 安裝腳本；其他 AI 使用 [安裝提示詞](INSTALL-PROMPT.md)。Claude Desktop 實機相容性尚未驗證。
+- Codex 與其他支援本機操作的 AI 均可使用 [安裝提示詞](INSTALL-PROMPT.md) 引導安裝。Claude Desktop 實機相容性尚未驗證。
 - 地理處理可能較久，用戶端工具 timeout 建議設為 180 秒。
 
 首次連線先呼叫 `list_sessions`，再用取得的 processId 呼叫 `ping` 與 `get_map`。
