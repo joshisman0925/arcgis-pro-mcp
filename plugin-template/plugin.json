@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "arcgis-pro-mcp",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Read and operate ArcGIS Pro maps, layers, attributes and geoprocessing through 38 local MCP tools.",
   "author": { "name": "joshisman0925", "url": "https://github.com/joshisman0925" },
   "repository": "https://github.com/joshisman0925/arcgis-pro-mcp",

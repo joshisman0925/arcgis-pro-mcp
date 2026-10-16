@@ -11,7 +11,7 @@ $scratch = Join-Path ([IO.Path]::GetTempPath()) ('arcgis-marketplace-' + [guid]:
 New-Item -ItemType Directory -Force -Path (Join-Path $scratch '.agents\plugins'), (Join-Path $scratch 'plugins') | Out-Null
 Copy-Item -LiteralPath (Join-Path $root '.agents\plugins\marketplace.json') -Destination (Join-Path $scratch '.agents\plugins\marketplace.json')
 Copy-Item -LiteralPath $plugin -Destination (Join-Path $scratch 'plugins') -Recurse
-foreach ($file in @('INSTALL-PROMPT.md','COMPATIBILITY.md','LICENSE','PRIVACY.md')) { Copy-Item -LiteralPath (Join-Path $root $file) -Destination $scratch }
+foreach ($file in @('INSTALL-PROMPT.md','UPDATE-PROMPT.md','COMPATIBILITY.md','LICENSE','PRIVACY.md')) { Copy-Item -LiteralPath (Join-Path $root $file) -Destination $scratch }
 $pluginZip = Join-Path $dist "arcgis-pro-mcp-plugin-$version.zip"
 $teamZip = Join-Path $dist "arcgis-pro-mcp-windows-$version.zip"
 foreach ($zip in @($pluginZip,$teamZip)) { if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip } }

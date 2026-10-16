@@ -1,5 +1,7 @@
 # 交給 AI 的安裝提示詞
 
+已安裝的使用者請改用 [更新提示詞](UPDATE-PROMPT.md)，保留既有設定與安裝來源。
+
 先選擇能存取本機檔案與執行本機程式的 AI 客戶端。純網頁對話無法直接安裝。此專案在 Windows 執行，使用者需自行具備合法 ArcGIS Pro 授權。
 
 將以下整段貼給 Codex、Claude Code、Cursor 或其他具本機操作能力的 AI。不要把 GitHub 網址直接當成遠端 HTTP MCP URL。
@@ -16,9 +18,9 @@ https://github.com/joshisman0925/arcgis-pro-mcp
    若缺必要程式，說明缺什麼，使用官方來源；不要靜默安裝未授權的軟體。
    Pro 3.3 是已測基準；較新 3.x 是待驗證的相容候選；3.0–3.2/2.x 不適用此 binary。
 
-2. 優先下載 GitHub Releases 的 v0.3.1 發行檔與 SHA256SUMS，
+2. 優先下載 GitHub Releases 的 v0.3.2 發行檔與 SHA256SUMS，
    驗證 SHA-256，再解壓到使用者可寫的固定位置，例如
-   %LOCALAPPDATA%\Programs\ArcGISProMcp\0.3.1。
+   %LOCALAPPDATA%\Programs\ArcGISProMcp\0.3.2。
    發行檔已包含 MCP dependencies 與編譯好的 Pro Add-in，
    不需 Git、npm install、.NET SDK 或自行編譯。
    若發行檔不可取得，先說明；只有我明確選擇從原始碼建置時才改走開發流程。

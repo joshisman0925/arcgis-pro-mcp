@@ -2,7 +2,7 @@
 
 使用自然語言，透過本機 MCP 讀取與操作已開啟的 ArcGIS Pro 地圖及場景。
 
-此為自訂整合專案，非 Esri 官方產品。MCP Server 與 Pro Add-in 目前都為 **0.3.1**。新增工具需要重新安裝新版 Add-in，再重新開啟 Pro。
+此為自訂整合專案，非 Esri 官方產品。Plugin 發行版本為 **0.3.2**；MCP Server 與 Pro Add-in 目前都為 **0.3.1**。本次只更新安裝／更新流程，Add-in 套件相同可跳過重裝。新增工具需要重新安裝新版 Add-in，再重新開啟 Pro。
 
 ```text
 AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
@@ -14,13 +14,21 @@ AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
 
 ## 同事安裝
 
-前往 [v0.3.1 Release](https://github.com/joshisman0925/arcgis-pro-mcp/releases/tag/v0.3.1)，下載 Windows ZIP 與 SHA256SUMS。已包含 MCP 執行依賴及編譯好的 Pro Add-in，使用者不需要 Git、npm install 或 .NET SDK。需要 Windows、Node.js 20+ 與已授權的 Pro 3.3 或相容的後續 3.x。
+前往 [v0.3.2 Release](https://github.com/joshisman0925/arcgis-pro-mcp/releases/tag/v0.3.2)，下載 Windows ZIP 與 SHA256SUMS。已包含 MCP 執行依賴及編譯好的 Pro Add-in，使用者不需要 Git、npm install 或 .NET SDK。需要 Windows、Node.js 20+ 與已授權的 Pro 3.3 或相容的後續 3.x。
 
 **把 [安裝提示詞](INSTALL-PROMPT.md) 交給你的 AI，即可引導檢查、備份與安裝。** 不支援本機 stdio／本機檔案操作的雲端 AI 無法直接安裝。
 
 依安裝提示詞完成安裝後，正常開啟 Pro 與地圖，再重新連線即可使用。已有 MCP 設定的使用者應先備份設定，驗證後只保留一個來源，避免重複安裝。
 
 Pro 版本策略見 [COMPATIBILITY.md](COMPATIBILITY.md)：共用一份 MCP，只有 SDK 二進位相容性需要時才增加 Add-in 建置版本，目前實測基準為 Pro 3.3。
+
+## 既有使用者更新
+
+把 [更新提示詞](UPDATE-PROMPT.md) 交給可操作本機的 AI。更新會先辨識 marketplace、Windows ZIP 或原始碼安裝來源，保留既有設定與備份，再更新實際啟用的 MCP 套件。
+
+Plugin 更新與 Pro Add-in 更新需分別確認。安裝與更新共用 Plugin 內的 `scripts/install-addin.ps1`：先加 `-CheckOnly` 查看已安裝與套件版本、是否需要更新及是否會降版。相同套件跳過；需要更新時先儲存並關閉所有 Pro，再執行同一腳本（不加 `-CheckOnly`）。腳本會備份舊 Add-in，並阻止自動降版。
+
+重新連接 MCP，必要時正常開啟 Pro，再以 `list_sessions`、`ping`、`get_map` 驗證實際載入版本。保留舊套件與設定備份，驗證完成前不要清除。此專案沒有背景自動更新程式。
 
 ## 已提供的工具
 

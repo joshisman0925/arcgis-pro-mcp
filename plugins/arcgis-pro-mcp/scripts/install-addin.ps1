@@ -15,11 +15,27 @@ if ($proVersion.Major -ne 3 -or $proVersion.Minor -lt 3) { throw "Pro $proVersio
 $native = Join-Path $pluginRoot 'native\LocalProConnector.esriAddinX'
 $checksums = Get-Content -LiteralPath (Join-Path $pluginRoot 'native\checksums.json') -Raw | ConvertFrom-Json
 if ((Get-FileHash -LiteralPath $native -Algorithm SHA256).Hash -ne $checksums.sha256) { throw 'Bundled Add-in checksum mismatch; obtain a clean package.' }
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+function Get-AddinVersion([string]$Path) {
+    $archive = [IO.Compression.ZipFile]::OpenRead($Path)
+    try {
+        $entry = $archive.GetEntry('Config.daml')
+        if (!$entry) { throw "Config.daml is missing in $Path" }
+        $reader = [IO.StreamReader]::new($entry.Open())
+        try { [xml]$daml = $reader.ReadToEnd() } finally { $reader.Dispose() }
+        return [version]$daml.ArcGIS.AddInInfo.version
+    } finally { $archive.Dispose() }
+}
+$bundledVersion = Get-AddinVersion $native
+if ($bundledVersion -ne [version]$checksums.version) { throw 'Bundled Add-in version does not match checksums.json.' }
 $targetDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'ArcGIS\AddIns\ArcGISPro\{969AD37B-DF15-46C7-ABF6-A4338D351C58}'
 $target = Join-Path $targetDir 'LocalProConnector.esriAddinX'
 $unchanged = (Test-Path -LiteralPath $target) -and ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -eq $checksums.sha256)
-$status = [ordered]@{ proVersion = $proVersion.ToString(); compatibility = $(if ($proVersion.Minor -eq 3) { 'tested baseline' } else { 'forward-compatibility candidate; not locally tested' }); packageVersion = $checksums.version; target = $target; packageAlreadyMatches = $unchanged; checkOnly = [bool]$CheckOnly }
+$installedVersion = if (Test-Path -LiteralPath $target) { Get-AddinVersion $target } else { $null }
+$downgrade = $null -ne $installedVersion -and $installedVersion -gt $bundledVersion
+$status = [ordered]@{ proVersion = $proVersion.ToString(); compatibility = $(if ($proVersion.Minor -eq 3) { 'tested baseline' } else { 'forward-compatibility candidate; not locally tested' }); packageVersion = $checksums.version; installedVersion = $(if ($installedVersion) { $installedVersion.ToString() } else { $null }); target = $target; packageAlreadyMatches = $unchanged; updateRequired = !$unchanged; downgradeBlocked = $downgrade; runtimeVerificationRequired = $true; checkOnly = [bool]$CheckOnly }
 if ($CheckOnly) { $status | ConvertTo-Json; exit 0 }
+if ($downgrade) { throw "Installed Add-in $installedVersion is newer than bundled $bundledVersion. Obtain a newer plugin; automatic downgrade is blocked." }
 if ($unchanged) { $status['result'] = 'Already installed. Runtime version still requires ping verification.'; $status | ConvertTo-Json; exit 0 }
 if (@(Get-Process -Name ArcGISPro -ErrorAction SilentlyContinue).Count) { throw 'Save your work and close Pro, then rerun setup. Pro will not be stopped automatically.' }
 $backupDir = Join-Path $env:LOCALAPPDATA 'ArcGISProMcp\backups'
