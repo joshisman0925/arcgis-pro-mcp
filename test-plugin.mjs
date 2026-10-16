@@ -35,6 +35,6 @@ try {
   const { tools } = await c.listTools(); assert.equal(tools.length, 38);
   assert.ok(tools.every(t => typeof t.title === 'string' && t.title.length));
   const sessions = await c.callTool({ name: 'list_sessions', arguments: {} });
-  assert.ok(!sessions.isError); assert.ok(Array.isArray(JSON.parse(sessions.content[0].text).sessions));
+  assert.ok(!sessions.isError, JSON.stringify(sessions)); assert.ok(Array.isArray(JSON.parse(sessions.content[0].text).sessions));
   console.log('PASS: isolated plugin runs without node_modules; 38 MCP tools, manifests and native hash verified.');
 } finally { await c.close(); }
