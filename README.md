@@ -4,6 +4,8 @@
 
 此為自訂整合專案，非 Esri 官方產品。Plugin 發行版本為 **0.3.2**；MCP Server 與 Pro Add-in 目前都為 **0.3.1**。本次只更新安裝／更新流程，Add-in 套件相同可跳過重裝。新增工具需要重新安裝新版 Add-in，再重新開啟 Pro。
 
+**使用前請閱讀 [安全邊界](SECURITY.md)**：工具結果可能由 AI 客戶端送往模型服務；本機通道信任同一 Windows 帳號。查詢時只取必要欄位，修改與整體儲存須符合使用者授權。
+
 ```text
 AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
   → Node.js MCP Server（官方 MCP SDK）

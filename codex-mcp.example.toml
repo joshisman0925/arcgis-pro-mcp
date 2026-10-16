@@ -2,6 +2,6 @@
 # Do not replace your entire config.toml with this example.
 [mcp_servers.arcgis_pro_local]
 command = 'node'
-args = ['D:/CECI/SourceCode/arcgis-pro-mcp/server.mjs']
+args = ['C:/path/to/arcgis-pro-mcp/server.mjs']
 startup_timeout_sec = 10
 tool_timeout_sec = 180

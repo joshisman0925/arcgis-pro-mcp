@@ -13,7 +13,8 @@ const run = promisify(execFile);
 export async function listSessions() {
   const { stdout } = await run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
     "$ErrorActionPreference='Stop'; [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false); $items = @(Get-Process -Name ArcGISPro -ErrorAction SilentlyContinue | Select-Object @{Name='processId';Expression={$_.Id}},@{Name='title';Expression={$_.MainWindowTitle}}); ConvertTo-Json -InputObject $items -Compress"],
-  { windowsHide: true, timeout: 10000, encoding: 'utf8' });
+  // A cold Windows PowerShell startup on hosted runners can exceed ten seconds.
+  { windowsHide: true, timeout: 30000, encoding: 'utf8' });
   const parsed = stdout.trim() ? JSON.parse(stdout) : [];
   return { sessions: Array.isArray(parsed) ? parsed : [parsed] };
 }

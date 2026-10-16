@@ -2,6 +2,8 @@
 
 Windows desktop-only plugin with 38 GIS tools. Requires licensed Pro 3.3 or a later 3.x and Node.js 20+. Dependencies are bundled; no npm install is required.
 
+Read SECURITY.md before use: results may reach the AI provider; the local pipe trusts the same Windows account. Confirmation parameters are not human authorization.
+
 Run the setup skill to check the Pro version and install the included Add-in while Pro is closed. Normally open Pro, then use list_sessions, ping and get_map. For existing installations, follow UPDATE-PROMPT.md. Installation and upgrade share scripts/install-addin.ps1; use -CheckOnly first. See INSTALL-PROMPT.md, COMPATIBILITY.md and TOOLS.md.
 
 Public repository distribution is separate from OpenAI public-directory approval. This plugin is not an Esri product.

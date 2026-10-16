@@ -19,7 +19,7 @@ const legacy = await json('.codex-plugin/plugin.json');
 assert.equal(legacy.version, manifest.version);
 const config = await json('mcp.json');
 assert.deepEqual((await json('.mcp.json')).mcpServers, config.mcpServers);
-for (const f of ['skills/setup/SKILL.md', 'scripts/install-addin.ps1', 'INSTALL-PROMPT.md', 'UPDATE-PROMPT.md', 'LICENSE', 'PRIVACY.md']) await access(path.join(isolated, f));
+for (const f of ['skills/setup/SKILL.md', 'scripts/install-addin.ps1', 'INSTALL-PROMPT.md', 'UPDATE-PROMPT.md', 'LICENSE', 'PRIVACY.md', 'SECURITY.md']) await access(path.join(isolated, f));
 const checksums = await json('native/checksums.json');
 const native = await readFile(path.join(isolated, 'native/LocalProConnector.esriAddinX'));
 assert.equal(createHash('sha256').update(native).digest('hex').toUpperCase(), checksums.sha256);
@@ -35,6 +35,6 @@ try {
   const { tools } = await c.listTools(); assert.equal(tools.length, 38);
   assert.ok(tools.every(t => typeof t.title === 'string' && t.title.length));
   const sessions = await c.callTool({ name: 'list_sessions', arguments: {} });
-  assert.ok(!sessions.isError); assert.ok(Array.isArray(JSON.parse(sessions.content[0].text).sessions));
+  assert.ok(!sessions.isError, JSON.stringify(sessions)); assert.ok(Array.isArray(JSON.parse(sessions.content[0].text).sessions));
   console.log('PASS: isolated plugin runs without node_modules; 38 MCP tools, manifests and native hash verified.');
 } finally { await c.close(); }

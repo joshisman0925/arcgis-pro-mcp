@@ -10,11 +10,13 @@
 請幫我安裝 ArcGIS Pro MCP：
 https://github.com/joshisman0925/arcgis-pro-mcp
 
-請先閱讀這個 repo 的 README.md、COMPATIBILITY.md 與 PRIVACY.md，
+請先閱讀這個 repo 的 README.md、COMPATIBILITY.md、PRIVACY.md 與 SECURITY.md，
 再按以下範圍執行。這是本機 stdio MCP，另需在 Pro 安裝 C# Add-in。
 
 1. 檢查原生 Windows、ArcGIS Pro 版本、目前 AI 軟體是否支援本機 stdio MCP，
    以及 Node.js 是否至少 20。不要在 WSL/Linux 中啟動這個 Named Pipe server。
+   安裝前先向我說明：資料可能送到模型服務、通道信任同一 Windows 帳號，
+   confirm 參數不取代使用者授權；查詢應指定必要欄位，整體儲存可能包含人工編輯。
    若缺必要程式，說明缺什麼，使用官方來源；不要靜默安裝未授權的軟體。
    Pro 3.3 是已測基準；較新 3.x 是待驗證的相容候選；3.0–3.2/2.x 不適用此 binary。
 
