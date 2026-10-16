@@ -1,0 +1,33 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "arcgis-pro-mcp",
+  "version": "0.3.1",
+  "description": "Read and operate ArcGIS Pro maps, layers, attributes and geoprocessing through 38 local MCP tools.",
+  "author": { "name": "joshisman0925", "url": "https://github.com/joshisman0925" },
+  "repository": "https://github.com/joshisman0925/arcgis-pro-mcp",
+  "homepage": "https://github.com/joshisman0925/arcgis-pro-mcp",
+  "license": "MIT",
+  "keywords": ["arcgis-pro", "gis", "mcp", "windows"],
+  "extensions": {
+    "com.openai": {
+      "requires_local_executor": true,
+      "onboardingSkill": "./skills/setup/SKILL.md",
+      "interface": {
+        "displayName": "ArcGIS Pro MCP",
+        "shortDescription": "Connect to ArcGIS Pro maps and GIS tools on Windows.",
+        "longDescription": "A Windows desktop integration with 38 tools for maps, layers, queries, symbology, raster information, exports and bounded GIS edits. Requires ArcGIS Pro 3.3 or newer and Node.js 20 or newer. Not affiliated with Esri.",
+        "developerName": "joshisman0925",
+        "category": "Productivity",
+        "capabilities": ["Read", "Write"],
+        "websiteURL": "https://github.com/joshisman0925/arcgis-pro-mcp",
+        "supportURL": "https://github.com/joshisman0925/arcgis-pro-mcp/issues",
+        "privacyPolicyURL": "https://github.com/joshisman0925/arcgis-pro-mcp/blob/main/PRIVACY.md",
+        "termsOfServiceURL": "https://github.com/joshisman0925/arcgis-pro-mcp/blob/main/LICENSE",
+        "defaultPrompt": ["List the layers in my active ArcGIS Pro map.", "Read attributes of my selected features."],
+        "composerIcon": "./assets/icon.svg",
+        "logo": "./assets/icon.svg",
+        "brandColor": "#187F74"
+      }
+    }
+  }
+}

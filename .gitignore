@@ -5,6 +5,8 @@ node_modules/
 
 # Generated add-in packages and local test reports
 *.esriAddinX
+!plugins/arcgis-pro-mcp/native/LocalProConnector.esriAddinX
+dist/
 validation-*.json
 *.tmp
 *.log

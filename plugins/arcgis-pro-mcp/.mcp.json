@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "arcgis_pro_local": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${PLUGIN_ROOT}/server/server.bundle.mjs"
+      ],
+      "cwd": "${PLUGIN_ROOT}"
+    }
+  }
+}

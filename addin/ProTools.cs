@@ -28,17 +28,22 @@ internal static partial class ProTools
     {
         var action = S(r, "action");
         if (!Actions.Contains(action)) throw new ArgumentException("Unknown action");
-        if (action == "ping") return new { connected = true, processId = Environment.ProcessId, version = "0.3.0", actions = Actions };
+        if (action == "ping") return new { connected = true, processId = Environment.ProcessId, version = "0.3.1", actions = Actions };
         if (action == "run_geoprocessing") return await RunGeoprocessing(r);
         if (action == "activate_map") {
             var map = await QueuedTask.Run(() => Project.Current.GetItems<MapProjectItem>().Select(i => i.GetMap()).SingleOrDefault(m => m.URI == S(r, "mapUri"))
                 ?? throw new ArgumentException("Map URI not found"));
-            return await UI(async () => {
-                var existing = FrameworkApplication.Panes.OfType<ArcGIS.Desktop.Framework.Contracts.Pane>().FirstOrDefault(p => p is IMapPane mp && mp.MapView.Map.URI == map.URI);
+            var activated = await UI(async () => {
+                var existing = FrameworkApplication.Panes.OfType<ArcGIS.Desktop.Framework.Contracts.Pane>().FirstOrDefault(p => p is IMapPane mp && mp.MapView?.Map?.URI == map.URI);
                 if (existing != null) existing.Activate();
                 else await FrameworkApplication.Panes.CreateMapPaneAsync(map);
                 return new { mapUri = map.URI, name = map.Name };
             });
+            for (var attempt = 0; attempt < 30; attempt++) {
+                if (await QueuedTask.Run(() => MapView.Active?.Map?.URI == map.URI)) return activated;
+                await Task.Delay(100);
+            }
+            throw new InvalidOperationException("Map pane was activated but is not ready yet; wait and call get_map before the next map operation.");
         }
         if (action == "save_edits") {
             Confirm(r, "confirmAllPendingEdits");

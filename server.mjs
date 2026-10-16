@@ -20,7 +20,7 @@ export async function listSessions() {
 
 // Fixed, strict schemas define discovery and validation in one place.
 export function createServer({ invoke = bridge, sessions = listSessions } = {}) {
-  const server = new McpServer({ name: 'arcgis-pro-local', version: '0.3.0' });
+  const server = new McpServer({ name: 'arcgis-pro-local', version: '0.3.1' });
   for (const [name, title, description, shape, readOnlyHint, destructiveHint, idempotentHint] of definitions) {
     server.registerTool(name, {
       title, description,

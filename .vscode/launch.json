@@ -36,6 +36,20 @@
       "request": "launch",
       "program": "${workspaceFolder}/test-inspector.mjs",
       "console": "integratedTerminal"
+    },
+    {
+      "name": "Connector — isolated plugin bundle test",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/test-plugin.mjs",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Connector — live reversible test",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/test-live-safe.mjs",
+      "console": "integratedTerminal"
     }
   ]
 }

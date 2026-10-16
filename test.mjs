@@ -47,7 +47,7 @@ try {
     const client = new Client({ name: 'connector-validation', version: '0.2.0' }, { versionNegotiation: { mode } });
     try {
       await client.connect(transport);
-      assert.equal(client.getServerVersion().version, '0.3.0');
+      assert.equal(client.getServerVersion().version, '0.3.1');
       if (client.getProtocolEra() === 'legacy') await client.ping();
       const { tools } = await client.listTools();
       assert.deepEqual(tools.map(t => t.name).sort(), [...toolNames].sort());

@@ -1,4 +1,27 @@
 {
   "version": "2.0.0",
-  "tasks": [{ "label": "Build and package connector", "type": "process", "command": "powershell.exe", "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/build.ps1"], "problemMatcher": "$msCompile" }]
+  "tasks": [
+    {
+      "label": "Build and package connector",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/build.ps1"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build portable plugin",
+      "type": "process",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/scripts/build-plugin.mjs"
+      ],
+      "problemMatcher": []
+    }
+  ]
 }

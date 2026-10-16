@@ -1,0 +1,12 @@
+{
+  "name": "joshisman-gis",
+  "interface": { "displayName": "Josh GIS Tools" },
+  "plugins": [
+    {
+      "name": "arcgis-pro-mcp",
+      "source": { "source": "local", "path": "./plugins/arcgis-pro-mcp" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    }
+  ]
+}

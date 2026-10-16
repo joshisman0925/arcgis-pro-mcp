@@ -2,7 +2,7 @@
 
 使用自然語言，透過本機 MCP 讀取與操作已開啟的 ArcGIS Pro 地圖及場景。
 
-此為自訂整合專案，非 Esri 官方產品。MCP Server 與 Pro Add-in 目前都為 **0.3.0**。新增工具需要重新安裝新版 Add-in，再重新開啟 Pro。
+此為自訂整合專案，非 Esri 官方產品。MCP Server 與 Pro Add-in 目前都為 **0.3.1**。新增工具需要重新安裝新版 Add-in，再重新開啟 Pro。
 
 ```text
 AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
@@ -11,6 +11,23 @@ AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
   → ArcGIS Pro C# Add-in
   → ArcGIS Pro SDK／目前開啟的地圖
 ```
+
+## 同事安裝／Codex Plugin
+
+前往 [v0.3.1 Release](https://github.com/joshisman0925/arcgis-pro-mcp/releases/tag/v0.3.1)，下載 Windows ZIP 與 SHA256SUMS。已包含 MCP 執行依賴及編譯好的 Pro Add-in，使用者不需要 Git、npm install 或 .NET SDK。需要 Windows、Node.js 20+ 與已授權的 Pro 3.3 或相容的後續 3.x。
+
+**把 [安裝提示詞](INSTALL-PROMPT.md) 交給你的 AI，即可引導檢查、備份與安裝。** 不支援本機 stdio／本機檔案操作的雲端 AI 無法直接安裝。
+
+Codex 使用自訂市集：
+
+```text
+codex plugin marketplace add joshisman0925/arcgis-pro-mcp
+codex plugin add arcgis-pro-mcp@joshisman-gis
+```
+
+安裝後執行 setup skill 安裝 Add-in，正常開啟 Pro 與地圖，再重新連線。已有手動 MCP 的使用者應先備份設定，驗證後只保留一個來源。這是公開自訂市集，尚未通過 OpenAI 官方目錄審核；申請條件見 [PUBLISHING.md](PUBLISHING.md)。
+
+Pro 版本策略見 [COMPATIBILITY.md](COMPATIBILITY.md)：共用一份 MCP，只有 SDK 二進位相容性需要時才增加 Add-in 建置版本，目前實測基準為 Pro 3.3。
 
 ## 已提供的工具
 
@@ -26,7 +43,7 @@ AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
 
 以上七項保留原有相容性。0.3.0 另外加入 31 個工具，涵蓋屬性查詢、資料來源、條件選取、縮放、單一／分級設色與還原、透明度、圖層新增／移除／分組／排序、地圖切換、柵格、相機與高程、版面匯出、五項白名單地理處理、屬性編輯、建立圖徵及儲存。
 
-**完整 38 個工具及操作限制見 [TOOLS.md](TOOLS.md)。** 本版是待真實 Pro 驗收的功能擴充版，不應將通過編譯與模擬測試視為所有 GIS 操作已完成驗證。
+**完整 38 個工具及操作限制見 [TOOLS.md](TOOLS.md)。** Pro 3.3 已通過真實讀取及可還原操作測試；資料編輯、儲存及版面匯出仍需獨立測試專案驗收。
 
 所有地圖工具都明確指定 processId，圖層工具以 URI 定位，避免同名圖層混淆。修改不會自動儲存 Pro 專案。
 
@@ -37,7 +54,7 @@ AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
 - Node.js **20 以上**；若執行 Inspector 開發測試，需要 **22.19 以上**。
 - 建置 Add-in 需要 .NET 8 SDK。
 
-## 安裝
+## 從原始碼安裝（開發者）
 
 1. 下載或 clone 本專案，保留整個專案資料夾。
 2. 在專案目錄安裝執行期相依性：`npm ci --omit=dev --ignore-scripts`。
@@ -53,7 +70,7 @@ AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
 - Codex：參考 `codex-mcp.example.toml`，將區段合併到用戶端的 `config.toml`。
 - 支援傳統本機 MCP JSON 設定的 Claude Desktop：參考 `claude-mcp.example.json`，合併到既有 `mcpServers`，不要覆寫其他設定。
 - 修改範例中的專案路徑；若 `node` 不在用戶端的 PATH，將 command 改成 `node.exe` 的完整路徑。
-- Claude Plugin、同事版自動安裝程式與 `.mcpb` 尚未製作，Claude Desktop 內的相容性尚未實測。
+- 已提供 Codex Plugin 與 Add-in 安裝腳本；其他 AI 使用 [安裝提示詞](INSTALL-PROMPT.md)。Claude Desktop 實機相容性尚未驗證。
 - 地理處理可能較久，用戶端工具 timeout 建議設為 180 秒。
 
 首次連線先呼叫 `list_sessions`，再用取得的 processId 呼叫 `ping` 與 `get_map`。
@@ -85,7 +102,7 @@ F5 的 Add-in 建置只會重新打包，不會更新已安裝的套件。若修
 - 官方 Inspector 2.11.0 嚴格 schema 檢查。
 - 真實 Pro 的地圖、欄位與選取資訊查詢。
 - Pro 圖層顯示功能已於初版實測；新版 MCP 的修改工具有模擬測試。
-- 0.3.0：38 工具已完成 MCP 分派、SDK 編譯與 Inspector schema 驗證。對真實 Pro 驗證了原有查詢及舊 Add-in 防護；當時 Pro 仍載入 0.1.0，新 SDK 操作尚未實測。請依 [LIVE-ACCEPTANCE.md](LIVE-ACCEPTANCE.md) 在測試專案驗收。
+- 0.3.1：真實 Pro 3.3 通過查詢、圖層組織、選取、符號還原、相機與高程、地圖切換、PNG／PDF 地圖匯出，以及五項 GP 白名單操作。測試只修改暫存資料，完成後移除暫存圖層並還原視圖；不儲存專案。資料編輯、save_edits、save_project、export_layout 尚未在隔離專案驗收。
 
 以上是互通性測試，並非官方認證，也未經 Claude 目錄審核。
 
