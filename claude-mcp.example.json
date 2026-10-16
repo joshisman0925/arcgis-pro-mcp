@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "arcgis-pro-local": {
+      "command": "node",
+      "args": ["D:/CECI/SourceCode/arcgis-pro-mcp/server.mjs"]
+    }
+  }
+}

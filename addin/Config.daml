@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArcGIS defaultAssembly="ProConnector.dll" defaultNamespace="ProConnector" xmlns="http://schemas.esri.com/DADF/Registry">
+  <AddInInfo id="{969AD37B-DF15-46C7-ABF6-A4338D351C58}" version="0.1.0" desktopVersion="3.3.0">
+    <Name>Local Pro Connector</Name><Description>Same-user local MCP bridge for ArcGIS Pro.</Description>
+    <Author>Local development</Author><Company>Local</Company><Date>2026-10-16</Date><Subject>Framework</Subject>
+  </AddInInfo>
+  <modules><insertModule id="LocalProConnector_Module" className="ConnectorModule" autoLoad="true" caption="Local Pro Connector" /></modules>
+</ArcGIS>

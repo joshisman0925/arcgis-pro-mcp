@@ -1,0 +1,32 @@
+# Installed dependencies and .NET build output
+node_modules/
+**/bin/
+**/obj/
+
+# Generated add-in packages and local test reports
+*.esriAddinX
+validation-*.json
+*.tmp
+*.log
+
+# Local credentials, settings and GIS projects/data
+.env
+.env.*
+!.env.example
+.codex/
+claude_desktop_config.json
+*.aprx
+*.ppkx
+*.gdb/
+*.sde
+*.tif
+*.tiff
+*.las
+*.laz
+
+# IDE user settings
+.vs/
+*.user
+*.suo
+.DS_Store
+Thumbs.db

@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ArcGIS Pro — launch installed connector",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "C:\\Program Files\\ArcGIS\\Pro\\bin\\ArcGISPro.exe",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Build and package connector"
+    },
+    {
+      "name": "Connector — protocol and pipe tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/test.mjs",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Connector — live MCP read-only test",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/test-pro.mjs",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Connector — Inspector read-only test",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/test-inspector.mjs",
+      "console": "integratedTerminal"
+    }
+  ]
+}
