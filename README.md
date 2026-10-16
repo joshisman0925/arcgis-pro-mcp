@@ -2,7 +2,7 @@
 
 使用自然語言，透過本機 MCP 讀取與操作已開啟的 ArcGIS Pro 地圖及場景。
 
-此為自訂整合專案，非 Esri 官方產品。MCP Server 目前為 **0.2.0**，Pro Add-in 為 **0.1.0**。
+此為自訂整合專案，非 Esri 官方產品。MCP Server 與 Pro Add-in 目前都為 **0.3.0**。新增工具需要重新安裝新版 Add-in，再重新開啟 Pro。
 
 ```text
 AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
@@ -18,11 +18,15 @@ AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
 | --- | --- |
 | `list_sessions` | 列出 Pro 工作階段與 processId |
 | `ping` | 確認指定 Pro 工作階段的 Add-in 連線 |
-| `get_map` | 目前地圖、圖層 URI、類型、顯示狀態與選取圖層 |
+| `get_map` | 目前地圖、圖層 URI、群組、高程表面及顯示狀態 |
 | `get_fields` | 圖徵圖層的欄位名稱、別名與型別 |
 | `get_selection` | 選取數量與前 1000 筆 Object ID（字串，保留 64 位元精度） |
 | `set_visibility` | 切換圖層顯示 |
 | `rename_layer` | 重新命名圖層 |
+
+以上七項保留原有相容性。0.3.0 另外加入 31 個工具，涵蓋屬性查詢、資料來源、條件選取、縮放、單一／分級設色與還原、透明度、圖層新增／移除／分組／排序、地圖切換、柵格、相機與高程、版面匯出、五項白名單地理處理、屬性編輯、建立圖徵及儲存。
+
+**完整 38 個工具及操作限制見 [TOOLS.md](TOOLS.md)。** 本版是待真實 Pro 驗收的功能擴充版，不應將通過編譯與模擬測試視為所有 GIS 操作已完成驗證。
 
 所有地圖工具都明確指定 processId，圖層工具以 URI 定位，避免同名圖層混淆。修改不會自動儲存 Pro 專案。
 
@@ -49,7 +53,8 @@ AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
 - Codex：參考 `codex-mcp.example.toml`，將區段合併到用戶端的 `config.toml`。
 - 支援傳統本機 MCP JSON 設定的 Claude Desktop：參考 `claude-mcp.example.json`，合併到既有 `mcpServers`，不要覆寫其他設定。
 - 修改範例中的專案路徑；若 `node` 不在用戶端的 PATH，將 command 改成 `node.exe` 的完整路徑。
-- Claude `.mcpb` 桌面擴充套件尚未製作，Claude Desktop 內的相容性尚未實測。
+- Claude Plugin、同事版自動安裝程式與 `.mcpb` 尚未製作，Claude Desktop 內的相容性尚未實測。
+- 地理處理可能較久，用戶端工具 timeout 建議設為 180 秒。
 
 首次連線先呼叫 `list_sessions`，再用取得的 processId 呼叫 `ping` 與 `get_map`。
 
@@ -62,13 +67,14 @@ AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
 | Configuration | 驗證內容 |
 | --- | --- |
 | Connector — protocol and pipe tests | 官方 Client、stdio、新舊協定、模擬 Pro、輸入驗證與錯誤處理 |
+| Connector — expanded tools tests | 38 個工具分派、schema、舊版 Add-in 防護與 27 種無效輸入 |
 | Connector — live MCP read-only test | 對已開啟的 Pro 執行唯讀 MCP 端到端測試 |
 | Connector — Inspector read-only test | 官方 Inspector 嚴格工具 schema 檢查與真實 Pro 查詢 |
 | ArcGIS Pro — launch installed connector | 開發 Add-in 時建置並啟動 Pro 偵錯 |
 
 F5 的 Add-in 建置只會重新打包，不會更新已安裝的套件。若修改 C#，請先儲存專案並關閉 Pro、安裝新套件，再啟動 Pro。若只修改 MCP 程式，重新連線即可。
 
-供 CI 或已授權的終端機自動化使用：`npm test`、`npm run test:pro`、`npm run test:inspector`。最後兩項要求已開啟 Pro 並載入 Add-in。
+供 CI 或已授權的終端機自動化使用：`npm test`、`npm run test:tools`、`npm run test:pro`、`npm run test:inspector`。最後兩項要求已開啟 Pro 並載入 Add-in。`npm test` 會執行兩組模擬測試。
 
 測試報告輸出成 `validation-*.json`，可能包含本機工作階段和圖層名稱，因此不加入版本庫。
 
@@ -79,6 +85,7 @@ F5 的 Add-in 建置只會重新打包，不會更新已安裝的套件。若修
 - 官方 Inspector 2.11.0 嚴格 schema 檢查。
 - 真實 Pro 的地圖、欄位與選取資訊查詢。
 - Pro 圖層顯示功能已於初版實測；新版 MCP 的修改工具有模擬測試。
+- 0.3.0：38 工具已完成 MCP 分派、SDK 編譯與 Inspector schema 驗證。對真實 Pro 驗證了原有查詢及舊 Add-in 防護；當時 Pro 仍載入 0.1.0，新 SDK 操作尚未實測。請依 [LIVE-ACCEPTANCE.md](LIVE-ACCEPTANCE.md) 在測試專案驗收。
 
 以上是互通性測試，並非官方認證，也未經 Claude 目錄審核。
 
@@ -89,14 +96,15 @@ F5 的 Add-in 建置只會重新打包，不會更新已安裝的套件。若修
 - 固定工具白名單，不提供任意 Python、C# 或 SQL 執行。
 - 資料回傳到 AI 用戶端後，可能送至其模型服務處理。
 - 已送到 Pro 的修改不會因用戶端取消或逾時而自動復原。逾時後先查現況，再決定是否重試。
-- 尚未涵蓋 SDK 全部操作，也尚未提供設色、地理處理或儲存工具。
+- 只涵蓋已列出的 38 個工作工具，不是整個 Pro SDK 的所有方法。工具適用的圖層型別、資料來源、Pro 授權及編輯能力仍受 SDK 限制。
 
 ## 專案結構
 
 ```text
 server.mjs              官方 SDK 工具註冊與 stdio 入口
+tools.mjs               38 個工具定義、schema 與跨參數驗證
 bridge.mjs              Named Pipe、排隊、連線重試與逾時
-addin/                  C# Add-in 與 DAML 設定
+addin/                  C# Add-in、資料／圖層／視圖／GP 操作與 DAML
 build.ps1               編譯並產生 .esriAddinX
 test*.mjs               模擬、真實 Pro 與 Inspector 測試
 .vscode/                開發啟動與建置設定

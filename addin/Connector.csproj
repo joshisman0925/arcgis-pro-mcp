@@ -10,5 +10,8 @@
     <Reference Include="ArcGIS.Desktop.Framework"><HintPath>$(ProRoot)\bin\ArcGIS.Desktop.Framework.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="ArcGIS.Desktop.Core"><HintPath>$(ProRoot)\bin\Extensions\Core\ArcGIS.Desktop.Core.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="ArcGIS.Desktop.Mapping"><HintPath>$(ProRoot)\bin\Extensions\Mapping\ArcGIS.Desktop.Mapping.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="ArcGIS.Desktop.Editing"><HintPath>$(ProRoot)\bin\Extensions\Editing\ArcGIS.Desktop.Editing.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="ArcGIS.Desktop.Layouts"><HintPath>$(ProRoot)\bin\Extensions\Layout\ArcGIS.Desktop.Layouts.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="ArcGIS.Desktop.Catalog"><HintPath>$(ProRoot)\bin\Extensions\Catalog\ArcGIS.Desktop.Catalog.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
 </Project>

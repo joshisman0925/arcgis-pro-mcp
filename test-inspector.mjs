@@ -3,6 +3,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { writeFile } from 'node:fs/promises';
+import { toolNames } from './tools.mjs';
 
 const run = promisify(execFile);
 const cwd = fileURLToPath(new URL('.', import.meta.url));
@@ -13,7 +14,7 @@ async function inspect(args) {
   return JSON.parse(stdout).result;
 }
 const listed = await inspect(['--method', 'tools/list', '--strict']);
-assert.equal(listed.tools.length, 7);
+assert.equal(listed.tools.length, toolNames.length);
 const sessionResult = await inspect(['--method', 'tools/call', '--tool-name', 'list_sessions']);
 assert.ok(!sessionResult.isError, JSON.stringify(sessionResult));
 const { sessions } = JSON.parse(sessionResult.content[0].text);

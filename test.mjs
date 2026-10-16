@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import net from 'node:net';
 import { fileURLToPath } from 'node:url';
 import { writeFile } from 'node:fs/promises';
+import { toolNames } from './tools.mjs';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 
@@ -20,7 +21,7 @@ const pipe = net.createServer(socket => {
     const request = JSON.parse(input);
     let result;
     switch (request.action) {
-      case 'ping': result = { connected: true, processId: pid }; break;
+      case 'ping': result = { connected: true, processId: pid, version: '0.3.0', actions: toolNames.filter(n => n !== 'list_sessions') }; break;
       case 'get_map': result = { name: '測試地圖', layers: [{ uri: 'test-layer', name: layerName, visible }] }; break;
       case 'get_fields': result = { error: 'Fixture: data source unavailable' }; break;
       case 'get_selection': result = { count: 1, objectIds: ['9007199254740993'], limit: 1000 }; break;
@@ -46,10 +47,10 @@ try {
     const client = new Client({ name: 'connector-validation', version: '0.2.0' }, { versionNegotiation: { mode } });
     try {
       await client.connect(transport);
-      assert.equal(client.getServerVersion().version, '0.2.0');
+      assert.equal(client.getServerVersion().version, '0.3.0');
       if (client.getProtocolEra() === 'legacy') await client.ping();
       const { tools } = await client.listTools();
-      assert.equal(tools.length, 7);
+      assert.deepEqual(tools.map(t => t.name).sort(), [...toolNames].sort());
       assert.equal(tools.find(t => t.name === 'rename_layer').inputSchema.additionalProperties, false);
       assert.equal(tools.find(t => t.name === 'set_visibility').annotations.readOnlyHint, false);
       const call = async (name, args) => {
@@ -94,6 +95,6 @@ try {
     assert.equal(stderr, '', 'Server must not emit unexpected errors');
   }
 } finally { await new Promise(resolve => pipe.close(resolve)); }
-const report = { checkedAt: new Date().toISOString(), suite: 'official-sdk-stdio-with-mock-pro', reports, checks: ['handshake/discovery', '7 tools', 'Unicode and 64-bit IDs', 'mock writes and readback', 'concurrent calls', 'input rejection before Pro', 'operational and unknown-tool errors', 'clean stdio shutdown'] };
+const report = { checkedAt: new Date().toISOString(), suite: 'official-sdk-stdio-with-mock-pro', toolCount: toolNames.length, reports, checks: ['handshake/discovery', 'tool discovery', 'Unicode and 64-bit IDs', 'mock writes and readback', 'concurrent calls', 'input rejection before Pro', 'operational and unknown-tool errors', 'clean stdio shutdown'] };
 await writeFile(new URL('./validation-protocol.json', import.meta.url), JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report, null, 2));

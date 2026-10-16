@@ -4,4 +4,4 @@
 command = 'node'
 args = ['D:/CECI/SourceCode/arcgis-pro-mcp/server.mjs']
 startup_timeout_sec = 10
-tool_timeout_sec = 30
+tool_timeout_sec = 180

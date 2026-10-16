@@ -17,6 +17,13 @@
       "console": "integratedTerminal"
     },
     {
+      "name": "Connector — expanded tools tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/test-tools.mjs",
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Connector — live MCP read-only test",
       "type": "node",
       "request": "launch",

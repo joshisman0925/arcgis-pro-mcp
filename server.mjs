@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
-import * as z from 'zod/v4';
+import { definitions, inputSchema, legacyActions } from './tools.mjs';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
@@ -9,17 +9,6 @@ import { bridge } from './bridge.mjs';
 
 export { bridge } from './bridge.mjs';
 const run = promisify(execFile);
-const processId = z.number().int().positive().max(Number.MAX_SAFE_INTEGER).describe('ArcGIS Pro process ID from list_sessions');
-const layerUri = z.string().min(1).max(4096).describe('Exact layer URI returned by get_map');
-const definitions = [
-  ['list_sessions', 'List running ArcGIS Pro processes. Use ping to check whether their connector is loaded.', {}],
-  ['ping', 'Check the connector in one Pro process.', { processId }],
-  ['get_map', 'Read active map, layer URIs, visibility and selected layers.', { processId }],
-  ['get_fields', 'Read field names, aliases and types of a feature layer.', { processId, layerUri }],
-  ['get_selection', 'Read selected feature count and up to 1000 object IDs (strings preserve 64-bit IDs).', { processId, layerUri }],
-  ['set_visibility', 'Change visibility in the active map. Does not save the project.', { processId, layerUri, visible: z.boolean() }],
-  ['rename_layer', 'Rename a layer in the active map. Does not save the project.', { processId, layerUri, name: z.string().min(1).max(255).refine(value => value.trim().length > 0, 'Name cannot be blank') }],
-];
 
 export async function listSessions() {
   const { stdout } = await run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
@@ -31,20 +20,22 @@ export async function listSessions() {
 
 // Fixed, strict schemas define discovery and validation in one place.
 export function createServer({ invoke = bridge, sessions = listSessions } = {}) {
-  const server = new McpServer({ name: 'arcgis-pro-local', version: '0.2.0' });
-  for (const [name, description, shape] of definitions) {
+  const server = new McpServer({ name: 'arcgis-pro-local', version: '0.3.0' });
+  for (const [name, title, description, shape, readOnlyHint, destructiveHint, idempotentHint] of definitions) {
     server.registerTool(name, {
-      description,
-      inputSchema: z.strictObject(shape),
+      title, description,
+      inputSchema: inputSchema(name, shape),
       annotations: {
-        readOnlyHint: !['set_visibility', 'rename_layer'].includes(name),
-        destructiveHint: false,
-        idempotentHint: true,
+        readOnlyHint, destructiveHint, idempotentHint,
         openWorldHint: false,
       },
     }, async args => {
       try {
         const { processId: pid, ...parameters } = args;
+        if (name !== 'list_sessions' && !legacyActions.has(name)) {
+          const status = await invoke(pid, { action: 'ping' });
+          if (!status.actions?.includes(name)) throw new Error('This tool requires Pro Add-in 0.3.0 or newer. Install the new .esriAddinX and reopen Pro after saving your work.');
+        }
         const value = name === 'list_sessions' ? await sessions() : await invoke(pid, { action: name, ...parameters });
         return { content: [{ type: 'text', text: JSON.stringify(value) }] };
       } catch (error) {

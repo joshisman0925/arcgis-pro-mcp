@@ -27,7 +27,8 @@ function bridgeOnce(processId, request) {
   return new Promise((resolve, reject) => {
     const socket = net.createConnection(`\\\\.\\pipe\\CodexArcGISPro-${processId}`);
     let buffer = '';
-    const timer = setTimeout(() => socket.destroy(new Error('Pro connector timed out; check whether Pro is busy. A timed-out change may still complete; read current state before retrying.')), 15000);
+    const timeout = request.action === 'run_geoprocessing' ? 120000 : ['export_map', 'export_layout', 'save_edits', 'save_project'].includes(request.action) ? 60000 : 15000;
+    const timer = setTimeout(() => socket.destroy(new Error('Pro connector timed out; check whether Pro is busy. A timed-out change may still complete; read current state before retrying.')), timeout);
     socket.setEncoding('utf8');
     let connected = false;
     socket.once('connect', () => { connected = true; socket.write(JSON.stringify(request) + '\n'); });
