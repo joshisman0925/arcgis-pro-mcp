@@ -12,7 +12,7 @@ AI 用戶端（Codex／其他支援本機 stdio MCP 的軟體）
   → ArcGIS Pro SDK／目前開啟的地圖
 ```
 
-## 同事安裝／Codex Plugin
+## Codex Plugin
 
 前往 [v0.3.1 Release](https://github.com/joshisman0925/arcgis-pro-mcp/releases/tag/v0.3.1)，下載 Windows ZIP 與 SHA256SUMS。已包含 MCP 執行依賴及編譯好的 Pro Add-in，使用者不需要 Git、npm install 或 .NET SDK。需要 Windows、Node.js 20+ 與已授權的 Pro 3.3 或相容的後續 3.x。
 
