@@ -56,7 +56,7 @@ Pro 版本策略見 [COMPATIBILITY.md](COMPATIBILITY.md)：共用一份 MCP，�
 5. 正常開啟 Pro，再開啟專案與地圖／場景。
 6. 在 AI 用戶端加入 MCP 設定，並重新載入連線。
 
-日常使用不需要 VSCode 或 F5。AI 用戶端會自動啟動 Node.js MCP 程式，Pro 則負責載入 Add-in。
+AI 用戶端會自動啟動 Node.js MCP 程式，Pro 則負責載入 Add-in。
 
 ### AI 用戶端設定
 
@@ -72,17 +72,7 @@ Pro 版本策略見 [COMPATIBILITY.md](COMPATIBILITY.md)：共用一份 MCP，�
 
 安裝開發相依性：`npm ci --ignore-scripts`。測試會啟動本機 MCP 子程序；不會啟動或重啟 Pro。
 
-使用 VSCode F5 選擇：
-
-| Configuration | 驗證內容 |
-| --- | --- |
-| Connector — protocol and pipe tests | 官方 Client、stdio、新舊協定、模擬 Pro、輸入驗證與錯誤處理 |
-| Connector — expanded tools tests | 38 個工具分派、schema、舊版 Add-in 防護與 27 種無效輸入 |
-| Connector — live MCP read-only test | 對已開啟的 Pro 執行唯讀 MCP 端到端測試 |
-| Connector — Inspector read-only test | 官方 Inspector 嚴格工具 schema 檢查與真實 Pro 查詢 |
-| ArcGIS Pro — launch installed connector | 開發 Add-in 時建置並啟動 Pro 偵錯 |
-
-F5 的 Add-in 建置只會重新打包，不會更新已安裝的套件。若修改 C#，請先儲存專案並關閉 Pro、安裝新套件，再啟動 Pro。若只修改 MCP 程式，重新連線即可。
+Add-in 建置只會重新打包，不會更新已安裝的套件。若修改 C#，請先儲存專案並關閉 Pro、安裝新套件，再啟動 Pro。若只修改 MCP 程式，重新連線即可。
 
 供 CI 或已授權的終端機自動化使用：`npm test`、`npm run test:tools`、`npm run test:pro`、`npm run test:inspector`。最後兩項要求已開啟 Pro 並載入 Add-in。`npm test` 會執行兩組模擬測試。
 
