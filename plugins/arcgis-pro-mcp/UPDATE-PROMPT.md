@@ -6,7 +6,9 @@
 請幫我更新 ArcGIS Pro MCP：
 https://github.com/joshisman0925/arcgis-pro-mcp
 
-先閱讀目標版本的 README.md、COMPATIBILITY.md、PRIVACY.md 與發行說明。
+先閱讀目標版本的 README.md、COMPATIBILITY.md、PRIVACY.md、SECURITY.md 與發行說明。
+更新前簡要提醒：資料可能送到模型服務、通道信任同一 Windows 帳號，
+confirm 參數不取代使用者授權；查詢只取必要欄位，儲存可能包含人工編輯。
 這是本機 stdio MCP，另有安裝在 ArcGIS Pro 的 C# Add-in，兩者須分別確認。
 
 1. 先查目前安裝來源、MCP 設定實際指向的位置、Plugin/MCP 版本、

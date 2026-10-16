@@ -1,0 +1,7 @@
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        # Central v1 is intentionally mutable; all other actions must use a SHA.
+        'singi0771/ci-standards/*': ref-pin
+        '*': hash-pin

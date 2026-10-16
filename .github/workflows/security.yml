@@ -1,0 +1,27 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  schedule:
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security:
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
+    uses: singi0771/ci-standards/.github/workflows/security-reusable.yml@v1
+    with:
+      severity: CRITICAL,HIGH
+      fail-on-findings: true
+      scan-docker-image: false
+      run-zizmor: true
+      upload-sarif: false
