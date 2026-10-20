@@ -12,6 +12,12 @@
 
 隱私處理細節見 [PRIVACY.md](PRIVACY.md)。本專案不提供任意 Python、C# 或 SQL 執行，也不宣稱消除客戶端、作業系統或 GIS 服務的風險。
 
+## 工具的外部存取宣告
+
+MCP 的 `openWorldHint` 描述工具可能接觸的外部實體，不是傳輸是否使用本機通道。除了只列出本機程序或固定能力的 `list_sessions`、`ping`、`list_geoprocessing_tools`，其餘工具保守標示為 `true`：Pro 專案可能包含遠端服務、外部資料與不受信任的內容。這不代表每次呼叫都會連網，也不會新增網路權限。此宣告只是提示，不能取代客戶端授權、輸入驗證或組織資料政策。
+
+定義依據：[MCP Tool Annotations](https://blog.modelcontextprotocol.io/posts/2026-03-16-tool-annotations/)（查核日期：2026-10-20）。
+
 ## 開發與合併
 
 變更透過 PR 合併至 `main`，須通過中央 `ci-standards` 的 CI／安全 Gate，以及本專案的測試。中央流程以 `singi0771/ci-standards@v1` 更新，屬於受信任的供應鏈來源。掃描通過不等於沒有漏洞。

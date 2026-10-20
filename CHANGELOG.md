@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- 修正工具 openWorldHint：除 list_sessions、ping、list_geoprocessing_tools 外標示可能接觸外部資料（Pro 專案可含遠端服務）；SECURITY.md 補宣告語意。
+- 重建 Plugin bundle；isolated plugin 測試新增 bundle 宣告與政策文件副本一致性檢查，避免原始碼修正未進入套件。
+
 ## 0.3.1
 
 - 加入可攜 Codex Plugin、自訂市集、跨 AI 安裝提示詞、MIT 授權與隱私說明。
