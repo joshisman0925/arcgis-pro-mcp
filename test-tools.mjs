@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { toolNames, definitions } from './tools.mjs';
-import { listSessions } from './server.mjs';
+import { listSessions, powershellEnv } from './server.mjs';
 
 const layerUri = 'test-layer';
 const layer = { layerUri };
@@ -118,6 +118,11 @@ await assert.rejects(listSessions({ exec: async () => { throw timedOut; } }), /t
 await assert.rejects(listSessions({ exec: async () => { throw Object.assign(new Error('Command failed'), { stderr: 'Access denied\r\n' }); } }), /^Error: Listing ArcGIS Pro sessions failed: Access denied$/);
 assert.deepEqual(await listSessions({ exec: async () => ({ stdout: '{"processId":7,"title":"Pro"}' }) }), { sessions: [{ processId: 7, title: 'Pro' }] });
 assert.deepEqual(await listSessions({ exec: async () => ({ stdout: '' }) }), { sessions: [] });
+// MCP stdio clients may drop PSModulePath; restoring defaults avoids a 20-30 second module rescan.
+let probeEnv;
+await listSessions({ env: { SYSTEMROOT: 'C:\\Windows', ProgramFiles: 'D:\\Apps' }, exec: async (_file, _args, options) => { probeEnv = options.env; return { stdout: '[]' }; } });
+assert.equal(probeEnv.PSModulePath, 'D:\\Apps\\WindowsPowerShell\\Modules;C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules');
+assert.equal(powershellEnv({ psmodulepath: 'X:\\Custom' }).PSModulePath, undefined, 'existing PSModulePath must be kept as-is');
 const report = { checkedAt: new Date().toISOString(), suite: 'expanded-tools-contracts', backendActionParity: 'PASS', oldAddinGuard: 'PASS', sessionProbeErrors: 'PASS', reports, scope: 'MCP transport/schema/routing only. Does not execute Pro SDK methods.' };
 await writeFile(new URL('./validation-tools.json', import.meta.url), JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report, null, 2));

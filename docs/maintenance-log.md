@@ -22,10 +22,12 @@
 - 觀察：scripts/build-plugin.mjs 的 checksums.json 版本寫死 0.3.1、Plugin 為 0.3.2；Add-in 本身仍為 0.3.1，判定為刻意區分，下次發版時再統一來源。
 - 下一步：P0 Pipe 存取控制與路徑驗證審查；同步 TOOLS／LIVE-ACCEPTANCE／README 驗收描述。
 
-## 2026-10-20 — main CI 紅燈：PowerShell 冷啟動逾時
+## 2026-10-20 — main CI 紅燈：list_sessions 缺 PSModulePath
 
-- PR #3 合併（e0e4da7）後 main 的 Connector tests 失敗，重跑仍失敗；近 4 次有 3 次於 test:plugin 的 list_sessions 剛好 30 秒逾時，判定為 hosted runner 上 Windows PowerShell 5.1 冷啟動過慢，非 PR #3 新增斷言造成。
-- CI：npm ci 後新增「Warm up Windows PowerShell」步驟並輸出耗時。
-- server.mjs：listSessions 可注入 exec；逾時改回傳清楚的重試建議，其他失敗附截斷 300 字的 stderr，不再只回顯命令列。逾時仍為 30 秒。
-- test-tools.mjs：以假 exec 驗證逾時、失敗、單一物件與空輸出四種情況，不啟動真實 PowerShell。
+- PR #3 合併（e0e4da7）後 main 的 Connector tests 失敗，重跑仍失敗；test:plugin 的 list_sessions 約 30 秒逾時。
+- 初判為 PowerShell 冷啟動，CI 暖機實測只需 0.4–3 秒，排除。test-plugin 加各階段計時：connect 123 ms、listTools 22 ms、list_sessions 28–30 秒。
+- PR 分支暫時加入 CI 診斷（已移除）：同一命令在完整環境 302 ms；MCP SDK StdioClientTransport 預設白名單環境 22–33 秒；白名單加 PSModulePath 263 ms；加 TMP 無效。根因是缺 PSModulePath 時 Windows PowerShell 重新掃描模組。本機因快取無法重現（約 0.4 秒）。
+- 影響：使用相同白名單環境的實際 MCP 用戶端也可能每次 list_sessions 需 20–30 秒或逾時，不只 CI。
+- server.mjs：新增 powershellEnv，環境缺 PSModulePath（不分大小寫）時補上 Program Files 與 System32 的 WindowsPowerShell Modules；既有值不覆寫。listSessions 逾時與失敗回傳可行動訊息。
+- 測試：test-tools.mjs 以假 exec 驗證逾時、失敗、單一物件、空輸出與 PSModulePath 補值；test-plugin.mjs 保留計時並要求 list_sessions 在白名單環境下少於 10 秒。
 - 已重建 Plugin bundle；node --check 通過。本機 F5 未跑，以 PR CI 驗證。

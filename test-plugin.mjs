@@ -48,7 +48,9 @@ try {
   const closedWorld = ['list_sessions', 'ping', 'list_geoprocessing_tools'];
   for (const t of tools) assert.equal(t.annotations?.openWorldHint, !closedWorld.includes(t.name), `${t.name} bundled trust boundary`);
   const sessions = await c.callTool({ name: 'list_sessions', arguments: {} });
-  lap('list_sessions');
+  // StdioClientTransport passes the same minimal env as real MCP clients; this guards the PSModulePath fix.
+  const probeMs = Date.now() - mark; lap('list_sessions');
+  assert.ok(probeMs < 10000, `list_sessions took ${probeMs} ms under the MCP client env allowlist`);
   assert.ok(!sessions.isError, JSON.stringify(sessions)); assert.ok(Array.isArray(JSON.parse(sessions.content[0].text).sessions));
   console.log('PASS: isolated plugin runs without node_modules; 38 MCP tools, manifests and native hash verified.');
 } finally { await c.close(); }

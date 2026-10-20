@@ -38,21 +38,6 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
-      # Hosted runners often take over 30 seconds for the first Windows PowerShell 5.1
-      # start. Warm it once so list_sessions tests measure the connector, not image cold start.
-      - name: TEMP diagnose PowerShell env
-        run: node scripts/diag-ps-env.mjs
-      - name: Warm up Windows PowerShell
-        shell: pwsh
-        run: |
-          # Same cmdlets as server.mjs listSessions, so first-use module loading is warmed too.
-          $probe = "`$ErrorActionPreference='Stop'; [Console]::OutputEncoding = [Text.UTF8Encoding]::new(`$false); `$items = @(Get-Process -Name ArcGISPro -ErrorAction SilentlyContinue | Select-Object @{Name='processId';Expression={`$_.Id}},@{Name='title';Expression={`$_.MainWindowTitle}}); ConvertTo-Json -InputObject `$items -Compress"
-          foreach ($attempt in 1..2) {
-            $sw = [Diagnostics.Stopwatch]::StartNew()
-            powershell.exe -NoProfile -NonInteractive -Command $probe | Out-Null
-            if ($LASTEXITCODE -ne 0) { throw "Windows PowerShell warm-up failed ($LASTEXITCODE)." }
-            Write-Output "Windows PowerShell session probe $attempt took $([int]$sw.Elapsed.TotalMilliseconds) ms."
-          }
       - name: Verify packaged DLL does not contain local build paths
         shell: pwsh
         run: ./scripts/check-package-privacy.ps1

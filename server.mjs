@@ -10,17 +10,27 @@ import { bridge } from './bridge.mjs';
 export { bridge } from './bridge.mjs';
 const run = promisify(execFile);
 
-export async function listSessions({ exec = run } = {}) {
+// MCP clients often pass only a small env allowlist. Without PSModulePath, Windows
+// PowerShell rescans for Get-Process/ConvertTo-Json and can take 20-30 seconds.
+export function powershellEnv(env = process.env) {
+  // Windows env names are case-insensitive, but copied env objects are not.
+  const get = name => Object.entries(env).find(([key]) => key.toUpperCase() === name.toUpperCase())?.[1];
+  if (get('PSModulePath')) return env;
+  const programFiles = get('ProgramFiles') || 'C:\\Program Files';
+  const systemRoot = get('SystemRoot') || 'C:\\Windows';
+  return { ...env, PSModulePath: [path.win32.join(programFiles, 'WindowsPowerShell', 'Modules'), path.win32.join(systemRoot, 'system32', 'WindowsPowerShell', 'v1.0', 'Modules')].join(';') };
+}
+
+export async function listSessions({ exec = run, env = process.env } = {}) {
   let stdout;
   try {
     ({ stdout } = await exec('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
       "$ErrorActionPreference='Stop'; [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false); $items = @(Get-Process -Name ArcGISPro -ErrorAction SilentlyContinue | Select-Object @{Name='processId';Expression={$_.Id}},@{Name='title';Expression={$_.MainWindowTitle}}); ConvertTo-Json -InputObject $items -Compress"],
-    // A cold Windows PowerShell startup on hosted runners can exceed ten seconds.
-    { windowsHide: true, timeout: 30000, encoding: 'utf8' }));
+    { windowsHide: true, timeout: 30000, encoding: 'utf8', env: powershellEnv(env) }));
   } catch (error) {
     // execFile kills the child on timeout; its raw message only echoes the command line.
     if (error?.killed || error?.code === 'ETIMEDOUT') {
-      throw new Error('Listing ArcGIS Pro sessions timed out after 30 seconds because Windows PowerShell started slowly. Retry list_sessions; if it keeps failing, check system load or security software.');
+      throw new Error('Listing ArcGIS Pro sessions timed out after 30 seconds while Windows PowerShell started. Retry list_sessions; if it keeps failing, check system load, security software or the PSModulePath environment variable.');
     }
     throw new Error(`Listing ArcGIS Pro sessions failed: ${String(error?.stderr || error?.message || error).trim().slice(0, 300)}`);
   }
