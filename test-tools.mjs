@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { toolNames, definitions } from './tools.mjs';
-import { listSessions, powershellEnv } from './server.mjs';
+import { listSessions } from './server.mjs';
 
 const layerUri = 'test-layer';
 const layer = { layerUri };
@@ -116,14 +116,15 @@ try {
 const timedOut = Object.assign(new Error('Command failed: powershell.exe ...'), { killed: true, signal: 'SIGTERM' });
 await assert.rejects(listSessions({ exec: async () => { throw timedOut; } }), /timed out after 30 seconds.*Retry list_sessions/);
 await assert.rejects(listSessions({ exec: async () => { throw Object.assign(new Error('Command failed'), { stderr: 'Access denied\r\n' }); } }), /^Error: Listing ArcGIS Pro sessions failed: Access denied$/);
-assert.deepEqual(await listSessions({ exec: async () => ({ stdout: '{"processId":7,"title":"Pro"}' }) }), { sessions: [{ processId: 7, title: 'Pro' }] });
+// Titles arrive as UTF-8 Base64, so non-ASCII project names survive any console code page.
+const b64 = text => Buffer.from(text, 'utf8').toString('base64');
+let probeArgs;
+assert.deepEqual(await listSessions({ exec: async (_file, args) => { probeArgs = args; return { stdout: `7:${b64('專案 - ArcGIS Pro')}\r\n12:\r\n` }; } }),
+  { sessions: [{ processId: 7, title: '專案 - ArcGIS Pro' }, { processId: 12, title: '' }] });
+// Cmdlets would trigger slow module autoloading under MCP client env allowlists.
+assert.doesNotMatch(probeArgs.at(-1), /Get-Process|Select-Object|ConvertTo-Json/);
 assert.deepEqual(await listSessions({ exec: async () => ({ stdout: '' }) }), { sessions: [] });
-// The probe must search only built-in modules, whatever PSModulePath the client passes.
-let probeEnv;
-await listSessions({ env: { SYSTEMROOT: 'C:\\Windows', psmodulepath: 'D:\\Untrusted\\Modules' }, exec: async (_file, _args, options) => { probeEnv = options.env; return { stdout: '[]' }; } });
-assert.equal(probeEnv.PSModulePath, 'C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules');
-assert.ok(!('psmodulepath' in probeEnv), 'client module paths must not reach the probe');
-assert.equal(powershellEnv({}).PSModulePath, 'C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules');
+await assert.rejects(listSessions({ exec: async () => ({ stdout: 'WARNING: profile\r\n' }) }), /unexpected output/);
 const report = { checkedAt: new Date().toISOString(), suite: 'expanded-tools-contracts', backendActionParity: 'PASS', oldAddinGuard: 'PASS', sessionProbeErrors: 'PASS', reports, scope: 'MCP transport/schema/routing only. Does not execute Pro SDK methods.' };
 await writeFile(new URL('./validation-tools.json', import.meta.url), JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report, null, 2));

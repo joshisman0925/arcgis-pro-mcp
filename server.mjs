@@ -10,32 +10,29 @@ import { bridge } from './bridge.mjs';
 export { bridge } from './bridge.mjs';
 const run = promisify(execFile);
 
-// The probe needs only built-in cmdlets. Limiting module discovery to System32 avoids
-// 20-30 second autoload scans of large or unexpected module folders (seen when MCP
-// clients pass a small env allowlist) and keeps user modules from shadowing cmdlets.
-export function powershellEnv(env = process.env) {
-  // Windows env names are case-insensitive, but copied env objects are not.
-  const entries = Object.entries(env);
-  const systemRoot = entries.find(([key]) => key.toUpperCase() === 'SYSTEMROOT')?.[1] || 'C:\\Windows';
-  return { ...Object.fromEntries(entries.filter(([key]) => key.toUpperCase() !== 'PSMODULEPATH')),
-    PSModulePath: path.win32.join(systemRoot, 'system32', 'WindowsPowerShell', 'v1.0', 'Modules') };
-}
+// Use only .NET and language features: autoloading Get-Process/ConvertTo-Json modules
+// can stall 20-30 seconds when MCP clients pass a small env allowlist (seen on CI).
+// Base64 titles keep output ASCII, so no console encoding or JSON escaping is needed.
+const sessionProbe = "$ErrorActionPreference='Stop'; foreach ($p in [Diagnostics.Process]::GetProcessesByName('ArcGISPro')) { '{0}:{1}' -f $p.Id, [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes([string]$p.MainWindowTitle)) }";
 
-export async function listSessions({ exec = run, env = process.env } = {}) {
+export async function listSessions({ exec = run } = {}) {
   let stdout;
   try {
-    ({ stdout } = await exec('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
-      "$ErrorActionPreference='Stop'; [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false); $items = @(Get-Process -Name ArcGISPro -ErrorAction SilentlyContinue | Select-Object @{Name='processId';Expression={$_.Id}},@{Name='title';Expression={$_.MainWindowTitle}}); ConvertTo-Json -InputObject $items -Compress"],
-    { windowsHide: true, timeout: 30000, encoding: 'utf8', env: powershellEnv(env) }));
+    ({ stdout } = await exec('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', sessionProbe],
+      { windowsHide: true, timeout: 30000, encoding: 'utf8' }));
   } catch (error) {
     // execFile kills the child on timeout; its raw message only echoes the command line.
     if (error?.killed || error?.code === 'ETIMEDOUT') {
-      throw new Error('Listing ArcGIS Pro sessions timed out after 30 seconds while Windows PowerShell started. Retry list_sessions; if it keeps failing, check system load, or security software.');
+      throw new Error('Listing ArcGIS Pro sessions timed out after 30 seconds while Windows PowerShell started. Retry list_sessions; if it keeps failing, check system load or security software.');
     }
     throw new Error(`Listing ArcGIS Pro sessions failed: ${String(error?.stderr || error?.message || error).trim().slice(0, 300)}`);
   }
-  const parsed = stdout.trim() ? JSON.parse(stdout) : [];
-  return { sessions: Array.isArray(parsed) ? parsed : [parsed] };
+  const sessions = stdout.split(/\r?\n/).filter(line => line.trim()).map(line => {
+    const match = /^(\d+):([A-Za-z0-9+/=]*)$/.exec(line.trim());
+    if (!match) throw new Error('Listing ArcGIS Pro sessions returned unexpected output.');
+    return { processId: Number(match[1]), title: Buffer.from(match[2], 'base64').toString('utf8') };
+  });
+  return { sessions };
 }
 
 // Fixed, strict schemas define discovery and validation in one place.
