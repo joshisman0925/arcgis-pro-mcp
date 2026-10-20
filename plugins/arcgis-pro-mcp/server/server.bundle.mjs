@@ -21778,11 +21778,12 @@ function bridgeOnce(processId, request) {
 // server.mjs
 var run = promisify(execFile);
 function powershellEnv(env = process.env) {
-  const get = (name2) => Object.entries(env).find(([key]) => key.toUpperCase() === name2.toUpperCase())?.[1];
-  if (get("PSModulePath")) return env;
-  const programFiles = get("ProgramFiles") || "C:\\Program Files";
-  const systemRoot = get("SystemRoot") || "C:\\Windows";
-  return { ...env, PSModulePath: [path.win32.join(programFiles, "WindowsPowerShell", "Modules"), path.win32.join(systemRoot, "system32", "WindowsPowerShell", "v1.0", "Modules")].join(";") };
+  const entries = Object.entries(env);
+  const systemRoot = entries.find(([key]) => key.toUpperCase() === "SYSTEMROOT")?.[1] || "C:\\Windows";
+  return {
+    ...Object.fromEntries(entries.filter(([key]) => key.toUpperCase() !== "PSMODULEPATH")),
+    PSModulePath: path.win32.join(systemRoot, "system32", "WindowsPowerShell", "v1.0", "Modules")
+  };
 }
 async function listSessions({ exec = run, env = process.env } = {}) {
   let stdout;
@@ -21799,7 +21800,7 @@ async function listSessions({ exec = run, env = process.env } = {}) {
     ));
   } catch (error2) {
     if (error2?.killed || error2?.code === "ETIMEDOUT") {
-      throw new Error("Listing ArcGIS Pro sessions timed out after 30 seconds while Windows PowerShell started. Retry list_sessions; if it keeps failing, check system load, security software or the PSModulePath environment variable.");
+      throw new Error("Listing ArcGIS Pro sessions timed out after 30 seconds while Windows PowerShell started. Retry list_sessions; if it keeps failing, check system load, or security software.");
     }
     throw new Error(`Listing ArcGIS Pro sessions failed: ${String(error2?.stderr || error2?.message || error2).trim().slice(0, 300)}`);
   }

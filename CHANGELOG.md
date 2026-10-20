@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- 修正 list_sessions 在 MCP 用戶端環境變數白名單下（缺 PSModulePath）每次需 20–30 秒、可能逾時的問題：探測時補上預設 PSModulePath；逾時或失敗改回傳可行動的錯誤訊息。
+- 修正 list_sessions 在 MCP 用戶端環境下每次需 20–30 秒、可能逾時的問題：探測時 PSModulePath 只指向 System32 內建模組，避免掃描大量第三方模組，也避免使用者模組遮蔽 cmdlet；逾時或失敗改回傳可行動的錯誤訊息。
 - 修正工具 openWorldHint：除 list_sessions、ping、list_geoprocessing_tools 外標示可能接觸外部資料（Pro 專案可含遠端服務）；SECURITY.md 補宣告語意。
 - 重建 Plugin bundle；isolated plugin 測試新增 bundle 宣告與政策文件副本一致性檢查，避免原始碼修正未進入套件。
 

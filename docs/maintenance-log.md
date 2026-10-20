@@ -28,6 +28,6 @@
 - 初判為 PowerShell 冷啟動，CI 暖機實測只需 0.4–3 秒，排除。test-plugin 加各階段計時：connect 123 ms、listTools 22 ms、list_sessions 28–30 秒。
 - PR 分支暫時加入 CI 診斷（已移除）：同一命令在完整環境 302 ms；MCP SDK StdioClientTransport 預設白名單環境 22–33 秒；白名單加 PSModulePath 263 ms；加 TMP 無效。根因是缺 PSModulePath 時 Windows PowerShell 重新掃描模組。本機因快取無法重現（約 0.4 秒）。
 - 影響：使用相同白名單環境的實際 MCP 用戶端也可能每次 list_sessions 需 20–30 秒或逾時，不只 CI。
-- server.mjs：新增 powershellEnv，環境缺 PSModulePath（不分大小寫）時補上 Program Files 與 System32 的 WindowsPowerShell Modules；既有值不覆寫。listSessions 逾時與失敗回傳可行動訊息。
-- 測試：test-tools.mjs 以假 exec 驗證逾時、失敗、單一物件、空輸出與 PSModulePath 補值；test-plugin.mjs 保留計時並要求 list_sessions 在白名單環境下少於 10 秒。
+- 第一版只在缺 PSModulePath 時補 Program Files＋System32 路徑，CI 仍 30 秒（runner 的 Program Files 模組目錄有大量模組，自動載入時全掃）。改為探測時一律只用 System32 內建模組路徑，同時避免使用者模組遮蔽 Get-Process 等 cmdlet。本機以此設定實跑探測 450 ms。listSessions 逾時與失敗回傳可行動訊息。
+- 測試：test-tools.mjs 以假 exec 驗證逾時、失敗、單一物件、空輸出，以及用戶端 PSModulePath（含小寫鍵名）被替換為 System32 路徑；test-plugin.mjs 保留計時並要求 list_sessions 在白名單環境下少於 10 秒。
 - 已重建 Plugin bundle；node --check 通過。本機 F5 未跑，以 PR CI 驗證。
