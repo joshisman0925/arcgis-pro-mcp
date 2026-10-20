@@ -40,6 +40,8 @@ jobs:
         run: npm ci --ignore-scripts
       # Hosted runners often take over 30 seconds for the first Windows PowerShell 5.1
       # start. Warm it once so list_sessions tests measure the connector, not image cold start.
+      - name: TEMP diagnose PowerShell env
+        run: node scripts/diag-ps-env.mjs
       - name: Warm up Windows PowerShell
         shell: pwsh
         run: |
