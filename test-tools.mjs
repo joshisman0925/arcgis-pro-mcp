@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { toolNames, definitions } from './tools.mjs';
+import { listSessions } from './server.mjs';
 
 const layerUri = 'test-layer';
 const layer = { layerUri };
@@ -111,6 +112,12 @@ try {
   const blocked = await old.callTool({ name: 'query_features', arguments: { processId: 99, layerUri } });
   assert.equal(blocked.isError, true); assert.match(blocked.content[0].text, /Add-in 0.3.0/);
 } finally { await old.close(); }
-const report = { checkedAt: new Date().toISOString(), suite: 'expanded-tools-contracts', backendActionParity: 'PASS', oldAddinGuard: 'PASS', reports, scope: 'MCP transport/schema/routing only. Does not execute Pro SDK methods.' };
+// Session probe errors must be actionable without starting a real PowerShell process.
+const timedOut = Object.assign(new Error('Command failed: powershell.exe ...'), { killed: true, signal: 'SIGTERM' });
+await assert.rejects(listSessions({ exec: async () => { throw timedOut; } }), /timed out after 30 seconds.*Retry list_sessions/);
+await assert.rejects(listSessions({ exec: async () => { throw Object.assign(new Error('Command failed'), { stderr: 'Access denied\r\n' }); } }), /^Error: Listing ArcGIS Pro sessions failed: Access denied$/);
+assert.deepEqual(await listSessions({ exec: async () => ({ stdout: '{"processId":7,"title":"Pro"}' }) }), { sessions: [{ processId: 7, title: 'Pro' }] });
+assert.deepEqual(await listSessions({ exec: async () => ({ stdout: '' }) }), { sessions: [] });
+const report = { checkedAt: new Date().toISOString(), suite: 'expanded-tools-contracts', backendActionParity: 'PASS', oldAddinGuard: 'PASS', sessionProbeErrors: 'PASS', reports, scope: 'MCP transport/schema/routing only. Does not execute Pro SDK methods.' };
 await writeFile(new URL('./validation-tools.json', import.meta.url), JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report, null, 2));

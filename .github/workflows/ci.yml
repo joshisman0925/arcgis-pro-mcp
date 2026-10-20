@@ -38,6 +38,15 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
+      # Hosted runners often take over 30 seconds for the first Windows PowerShell 5.1
+      # start. Warm it once so list_sessions tests measure the connector, not image cold start.
+      - name: Warm up Windows PowerShell
+        shell: pwsh
+        run: |
+          $sw = [Diagnostics.Stopwatch]::StartNew()
+          powershell.exe -NoProfile -NonInteractive -Command "Get-Process -Id `$PID | Out-Null"
+          if ($LASTEXITCODE -ne 0) { throw "Windows PowerShell warm-up failed ($LASTEXITCODE)." }
+          Write-Output "Windows PowerShell warm-up took $([int]$sw.Elapsed.TotalSeconds) s."
       - name: Verify packaged DLL does not contain local build paths
         shell: pwsh
         run: ./scripts/check-package-privacy.ps1

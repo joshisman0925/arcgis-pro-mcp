@@ -21,3 +21,11 @@
 - 版本：未變更版本號，CHANGELOG 列於 Unreleased；未發版（Add-in 未變更，需累積更多變更並完成 F5 後再評估）。
 - 觀察：scripts/build-plugin.mjs 的 checksums.json 版本寫死 0.3.1、Plugin 為 0.3.2；Add-in 本身仍為 0.3.1，判定為刻意區分，下次發版時再統一來源。
 - 下一步：P0 Pipe 存取控制與路徑驗證審查；同步 TOOLS／LIVE-ACCEPTANCE／README 驗收描述。
+
+## 2026-10-20 — main CI 紅燈：PowerShell 冷啟動逾時
+
+- PR #3 合併（e0e4da7）後 main 的 Connector tests 失敗，重跑仍失敗；近 4 次有 3 次於 test:plugin 的 list_sessions 剛好 30 秒逾時，判定為 hosted runner 上 Windows PowerShell 5.1 冷啟動過慢，非 PR #3 新增斷言造成。
+- CI：npm ci 後新增「Warm up Windows PowerShell」步驟並輸出耗時。
+- server.mjs：listSessions 可注入 exec；逾時改回傳清楚的重試建議，其他失敗附截斷 300 字的 stderr，不再只回顯命令列。逾時仍為 30 秒。
+- test-tools.mjs：以假 exec 驗證逾時、失敗、單一物件與空輸出四種情況，不啟動真實 PowerShell。
+- 已重建 Plugin bundle；node --check 通過。本機 F5 未跑，以 PR CI 驗證。
