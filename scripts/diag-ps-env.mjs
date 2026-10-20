@@ -17,7 +17,7 @@ const cmds = {
 const inner = `import { execFile } from 'node:child_process'; import { promisify } from 'node:util';
 const run = promisify(execFile); const m = await import(${JSON.stringify(server)});
 for (const [n, c] of Object.entries(${JSON.stringify(cmds)})) { const t = Date.now();
-  try { const { stdout } = await run('powershell.exe', ['-NoProfile','-NonInteractive','-Command', c], { env: m.powershellEnv(process.env), windowsHide: true, timeout: 45000, encoding: 'utf8' }); console.log('inner', n, Date.now()-t, 'ms', stdout.trim().replace(/\r?\n/g,' | ').slice(0,300)); }
+  try { const { stdout } = await run('powershell.exe', ['-NoProfile','-NonInteractive','-Command', c], { env: m.powershellEnv(process.env), windowsHide: true, timeout: 45000, encoding: 'utf8' }); console.log('inner', n, Date.now()-t, 'ms', stdout.trim().split(String.fromCharCode(10)).join(' | ').slice(0,300)); }
   catch (e) { console.log('inner', n, Date.now()-t, 'ms ERR', String(e.stderr).slice(0,150)); } }`;
 const { stdout } = await run(process.execPath, ['--input-type=module', '-e', inner], { env: minimal, windowsHide: true, timeout: 400000 });
 console.log(stdout);
