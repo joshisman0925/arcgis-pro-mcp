@@ -21,3 +21,14 @@
 - 版本：未變更版本號，CHANGELOG 列於 Unreleased；未發版（Add-in 未變更，需累積更多變更並完成 F5 後再評估）。
 - 觀察：scripts/build-plugin.mjs 的 checksums.json 版本寫死 0.3.1、Plugin 為 0.3.2；Add-in 本身仍為 0.3.1，判定為刻意區分，下次發版時再統一來源。
 - 下一步：P0 Pipe 存取控制與路徑驗證審查；同步 TOOLS／LIVE-ACCEPTANCE／README 驗收描述。
+
+## 2026-10-20 — main CI 紅燈：list_sessions 在 MCP 用戶端環境下 20–30 秒
+
+- PR #3 合併（e0e4da7）後 main 的 Connector tests 失敗，重跑仍失敗；test:plugin 的 list_sessions 約 30 秒逾時。
+- 排除冷啟動：CI 直接啟動同一命令只需 0.4–3 秒。test-plugin 計時：connect 123 ms、listTools 22 ms、list_sessions 22–30 秒。
+- PR #4 分支暫時加入 CI 診斷（合併前已移除）。以 MCP SDK StdioClientTransport 的環境變數白名單啟動時：exit 0.2–2 秒；Get-Process 20–42 秒；Select-Object／ConvertTo-Json 約 20 秒；Get-Command ConvertTo-Json 剛好 20003 ms。完整環境同命令約 0.3 秒。
+- 中途嘗試補預設 PSModulePath、或只留 System32 模組路徑，CI 仍 30 秒，已撤回。結論：白名單環境下自動載入 Microsoft.PowerShell.Management／Utility 模組會卡約 20 秒，確切缺少的變數未定位。本機因快取無法重現（約 0.3–0.5 秒）。
+- 影響：使用相同白名單環境的實際 MCP 用戶端也可能每次 list_sessions 需 20–30 秒或逾時，不只 CI。
+- 修正：server.mjs 探測改用 [Diagnostics.Process]::GetProcessesByName 與語言內建語法，不呼叫任何 cmdlet；每行輸出「PID:Base64(UTF-8 標題)」，Node 端解析，非預期輸出回報錯誤。逾時與失敗回傳可行動訊息，逾時維持 30 秒。本機實跑 0.3 秒；以 explorer 代換驗證標題解碼。
+- 測試：test-tools.mjs 以假 exec 驗證逾時、失敗、中文標題、空標題、空輸出、非預期輸出，並確認命令不含 cmdlet；test-plugin.mjs 記錄各階段計時，並要求 list_sessions 在白名單環境下少於 10 秒。
+- 已重建 Plugin bundle；node --check 通過。本機 F5 未跑，以 PR CI 驗證。

@@ -21777,20 +21777,27 @@ function bridgeOnce(processId, request) {
 
 // server.mjs
 var run = promisify(execFile);
-async function listSessions() {
-  const { stdout } = await run(
-    "powershell.exe",
-    [
-      "-NoProfile",
-      "-NonInteractive",
-      "-Command",
-      "$ErrorActionPreference='Stop'; [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false); $items = @(Get-Process -Name ArcGISPro -ErrorAction SilentlyContinue | Select-Object @{Name='processId';Expression={$_.Id}},@{Name='title';Expression={$_.MainWindowTitle}}); ConvertTo-Json -InputObject $items -Compress"
-    ],
-    // A cold Windows PowerShell startup on hosted runners can exceed ten seconds.
-    { windowsHide: true, timeout: 3e4, encoding: "utf8" }
-  );
-  const parsed = stdout.trim() ? JSON.parse(stdout) : [];
-  return { sessions: Array.isArray(parsed) ? parsed : [parsed] };
+var sessionProbe = "$ErrorActionPreference='Stop'; foreach ($p in [Diagnostics.Process]::GetProcessesByName('ArcGISPro')) { '{0}:{1}' -f $p.Id, [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes([string]$p.MainWindowTitle)) }";
+async function listSessions({ exec = run } = {}) {
+  let stdout;
+  try {
+    ({ stdout } = await exec(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", sessionProbe],
+      { windowsHide: true, timeout: 3e4, encoding: "utf8" }
+    ));
+  } catch (error2) {
+    if (error2?.killed || error2?.code === "ETIMEDOUT") {
+      throw new Error("Listing ArcGIS Pro sessions timed out after 30 seconds while Windows PowerShell started. Retry list_sessions; if it keeps failing, check system load or security software.");
+    }
+    throw new Error(`Listing ArcGIS Pro sessions failed: ${String(error2?.stderr || error2?.message || error2).trim().slice(0, 300)}`);
+  }
+  const sessions = stdout.split(/\r?\n/).filter((line) => line.trim()).map((line) => {
+    const match = /^(\d+):([A-Za-z0-9+/=]*)$/.exec(line.trim());
+    if (!match) throw new Error("Listing ArcGIS Pro sessions returned unexpected output.");
+    return { processId: Number(match[1]), title: Buffer.from(match[2], "base64").toString("utf8") };
+  });
+  return { sessions };
 }
 function createServer({ invoke = bridge, sessions = listSessions } = {}) {
   const server = new McpServer({ name: "arcgis-pro-local", version: "0.3.1" });

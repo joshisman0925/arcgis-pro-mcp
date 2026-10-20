@@ -36,14 +36,21 @@ const args = server.args.map(a => a.replaceAll('${PLUGIN_ROOT}', isolated));
 assert.ok(args.every(a => path.resolve(a).startsWith(isolated + path.sep)));
 const c = new Client({ name: 'isolated-plugin-validation', version: '1.0.0' });
 try {
+  // Step timings make slow hosted-runner phases visible without changing assertions.
+  let mark = Date.now(); const lap = step => { const now = Date.now(); console.log(`timing ${step}: ${now - mark} ms`); mark = now; };
   await c.connect(new StdioClientTransport({ command: process.execPath, args, cwd: isolated, stderr: 'inherit' }));
+  lap('connect');
   assert.equal(c.getServerVersion().version, '0.3.1');
   const { tools } = await c.listTools(); assert.equal(tools.length, 38);
+  lap('listTools');
   assert.ok(tools.every(t => typeof t.title === 'string' && t.title.length));
   // A stale bundle would ship old trust-boundary hints even when server.mjs is fixed.
   const closedWorld = ['list_sessions', 'ping', 'list_geoprocessing_tools'];
   for (const t of tools) assert.equal(t.annotations?.openWorldHint, !closedWorld.includes(t.name), `${t.name} bundled trust boundary`);
   const sessions = await c.callTool({ name: 'list_sessions', arguments: {} });
+  // StdioClientTransport passes the same minimal env as real MCP clients; this guards the PSModulePath fix.
+  const probeMs = Date.now() - mark; lap('list_sessions');
+  assert.ok(probeMs < 10000, `list_sessions took ${probeMs} ms under the MCP client env allowlist`);
   assert.ok(!sessions.isError, JSON.stringify(sessions)); assert.ok(Array.isArray(JSON.parse(sessions.content[0].text).sessions));
   console.log('PASS: isolated plugin runs without node_modules; 38 MCP tools, manifests and native hash verified.');
 } finally { await c.close(); }
