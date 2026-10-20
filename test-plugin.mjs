@@ -20,6 +20,12 @@ assert.equal(legacy.version, manifest.version);
 const config = await json('mcp.json');
 assert.deepEqual((await json('.mcp.json')).mcpServers, config.mcpServers);
 for (const f of ['skills/setup/SKILL.md', 'scripts/install-addin.ps1', 'INSTALL-PROMPT.md', 'UPDATE-PROMPT.md', 'LICENSE', 'PRIVACY.md', 'SECURITY.md']) await access(path.join(isolated, f));
+if (!process.env.PLUGIN_TEST_ROOT) {
+  // Policy documents users read in the plugin must match the reviewed repository copies.
+  for (const f of ['LICENSE', 'PRIVACY.md', 'SECURITY.md', 'TOOLS.md', 'COMPATIBILITY.md', 'INSTALL-PROMPT.md', 'UPDATE-PROMPT.md']) {
+    assert.equal(await readFile(path.join(isolated, f), 'utf8'), await readFile(path.join(root, f), 'utf8'), `${f} bundle copy is stale; rebuild the plugin`);
+  }
+}
 const checksums = await json('native/checksums.json');
 const native = await readFile(path.join(isolated, 'native/LocalProConnector.esriAddinX'));
 assert.equal(createHash('sha256').update(native).digest('hex').toUpperCase(), checksums.sha256);
@@ -34,6 +40,9 @@ try {
   assert.equal(c.getServerVersion().version, '0.3.1');
   const { tools } = await c.listTools(); assert.equal(tools.length, 38);
   assert.ok(tools.every(t => typeof t.title === 'string' && t.title.length));
+  // A stale bundle would ship old trust-boundary hints even when server.mjs is fixed.
+  const closedWorld = ['list_sessions', 'ping', 'list_geoprocessing_tools'];
+  for (const t of tools) assert.equal(t.annotations?.openWorldHint, !closedWorld.includes(t.name), `${t.name} bundled trust boundary`);
   const sessions = await c.callTool({ name: 'list_sessions', arguments: {} });
   assert.ok(!sessions.isError, JSON.stringify(sessions)); assert.ok(Array.isArray(JSON.parse(sessions.content[0].text).sessions));
   console.log('PASS: isolated plugin runs without node_modules; 38 MCP tools, manifests and native hash verified.');

@@ -28,7 +28,9 @@ export function createServer({ invoke = bridge, sessions = listSessions } = {}) 
       inputSchema: inputSchema(name, shape),
       annotations: {
         readOnlyHint, destructiveHint, idempotentHint,
-        openWorldHint: false,
+        // Map data may come from remote services, even over a local pipe.
+        // Only process/capability discovery is guaranteed to stay closed-world.
+        openWorldHint: !['list_sessions', 'ping', 'list_geoprocessing_tools'].includes(name),
       },
     }, async args => {
       try {

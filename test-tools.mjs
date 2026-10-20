@@ -56,6 +56,10 @@ for (const mode of ['legacy', 'auto']) {
       const discovered = listed.tools.find(t => t.name === name);
       assert.equal(discovered.annotations.readOnlyHint, readOnly);
       assert.equal(discovered.annotations.destructiveHint, destructive);
+      // Remote layers can be queried, rendered, exported and edited through Pro.
+      // Check discovery in both protocol modes, without contacting real services.
+      const closedWorld = ['list_sessions', 'ping', 'list_geoprocessing_tools'];
+      assert.equal(discovered.annotations.openWorldHint, !closedWorld.includes(name), `${name} trust boundary`);
       const result = await call(client, name, examples[name]);
       if (name === 'list_sessions') assert.equal(result.sessions[0].processId, 99);
       else if (name === 'ping') assert.equal(result.version, '0.3.0');
