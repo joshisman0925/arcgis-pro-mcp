@@ -18,6 +18,12 @@ MCP 的 `openWorldHint` 描述工具可能接觸的外部實體，不是傳輸�
 
 定義依據：[MCP Tool Annotations](https://blog.modelcontextprotocol.io/posts/2026-03-16-tool-annotations/)（查核日期：2026-10-20）。
 
+## 輸出路徑
+
+`export_map`、`export_layout`、`run_geoprocessing` 的 `outputPath` 在送進 Pro 前由 MCP Server 檢查：必須是磁碟代號開頭的絕對路徑，拒絕 UNC／`\\?\` 裝置前綴、`..` 與 `.` 片段、空片段、結尾為句點或空白的片段、`: < > " | ? *` 與控制字元，以及 `CON`、`NUL`、`COM1`、`LPT1` 等保留裝置名稱。這些寫法會被 Win32 改寫，可能寫入既有檔案的替代資料流、裝置或與檢查時不同的檔案，繞過「只寫新檔」規則。Add-in 端另外拒絕既有目標並要求父資料夾已存在。
+
+限制：對應成磁碟代號的網路磁碟機（例如 `Z:`）仍視為本機路徑；Add-in 尚未重複上述片段規則，直接呼叫 Named Pipe 的同帳號程式不受 MCP Server 檢查（見上方信任範圍）。
+
 ## 開發與合併
 
 變更透過 PR 合併至 `main`，須通過中央 `ci-standards` 的 CI／安全 Gate，以及本專案的測試。中央流程以 `singi0771/ci-standards@v1` 更新，屬於受信任的供應鏈來源。掃描通過不等於沒有漏洞。

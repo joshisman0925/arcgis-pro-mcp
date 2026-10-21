@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- 加強 export_map／export_layout／run_geoprocessing 的 outputPath 檢查：拒絕替代資料流（`:`）、保留裝置名稱（CON、NUL、COM1…）、結尾句點／空白、`.`／空片段及 Windows 保留字元，避免繞過「只寫新檔」規則；test-tools 新增對應拒絕與允許案例，SECURITY.md 補說明與限制。
+
 - 修正 list_sessions 在 MCP 用戶端環境變數白名單下每次需 20–30 秒、可能逾時的問題：探測改用 .NET Process API，不再載入 Get-Process／ConvertTo-Json 所屬模組；視窗標題以 UTF-8 Base64 傳回，不受主控台字碼頁影響；逾時或失敗改回傳可行動的錯誤訊息。
 - 修正工具 openWorldHint：除 list_sessions、ping、list_geoprocessing_tools 外標示可能接觸外部資料（Pro 專案可含遠端服務）；SECURITY.md 補宣告語意。
 - 重建 Plugin bundle；isolated plugin 測試新增 bundle 宣告與政策文件副本一致性檢查，避免原始碼修正未進入套件。

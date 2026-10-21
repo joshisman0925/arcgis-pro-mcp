@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
-import { toolNames, definitions } from './tools.mjs';
+import { toolNames, definitions, outputPathProblem } from './tools.mjs';
 import { listSessions } from './server.mjs';
 
 const layerUri = 'test-layer';
@@ -84,6 +84,10 @@ for (const mode of ['legacy', 'auto']) {
       ['export_map', { outputPath: '../secret.png', format: 'png' }],
       ['export_map', { outputPath: 'D:/out.pdf', format: 'png' }],
       ['export_map', { outputPath: 'D:/../out.png', format: 'png' }],
+      ['export_map', { outputPath: '//server/share/out.png', format: 'png' }],
+      ['export_map', { outputPath: 'D:/exports/existing.txt:hidden.png', format: 'png' }],
+      ['export_map', { outputPath: 'D:/exports/NUL.png', format: 'png' }],
+      ['run_geoprocessing', { tool: 'copy_features', inputLayerUris: [layerUri], outputPath: 'D:/data/out.gdb/copy.', confirm: true }],
       ['run_geoprocessing', { tool: 'delete', inputLayerUris: [layerUri], outputPath: 'D:/out', confirm: true }],
       ['run_geoprocessing', { tool: 'buffer', inputLayerUris: [layerUri], outputPath: 'D:/out', confirm: true }],
       ['run_geoprocessing', { tool: 'clip', inputLayerUris: [layerUri], outputPath: 'D:/out', confirm: true }],
@@ -125,6 +129,12 @@ assert.deepEqual(await listSessions({ exec: async (_file, args) => { probeArgs =
 assert.doesNotMatch(probeArgs.at(-1), /Get-Process|Select-Object|ConvertTo-Json/);
 assert.deepEqual(await listSessions({ exec: async () => ({ stdout: '' }) }), { sessions: [] });
 await assert.rejects(listSessions({ exec: async () => ({ stdout: 'WARNING: profile\r\n' }) }), /unexpected output/);
-const report = { checkedAt: new Date().toISOString(), suite: 'expanded-tools-contracts', backendActionParity: 'PASS', oldAddinGuard: 'PASS', sessionProbeErrors: 'PASS', reports, scope: 'MCP transport/schema/routing only. Does not execute Pro SDK methods.' };
+// Output paths: Win32 aliases (ADS, devices, trailing dots) must not slip past the "new local file" rule.
+for (const ok of ['D:/exports/test.png', 'C:\\GIS\\專案\\out.gdb\\buffer_100m', 'E:/a b/c.d/e.pdf', 'D:/console/connect.png'])
+  assert.equal(outputPathProblem(ok), null, ok);
+for (const bad of ['//server/share/x.png', '\\\\server\\share\\x.png', '\\\\?\\C:\\x.png', 'x.png', 'D:x.png', 'D:/a.txt:s.png', 'D:/a/../b.png',
+  'D:/a/./b.png', 'D:/a//b.png', 'D:/a/b.png.', 'D:/a /b.png', 'D:/con', 'D:/dir/aux.tif', 'D:/COM1.pdf', 'D:/lpt¹.png', 'D:/a|b.png', 'D:/a?.png', 'D:/a\u0001.png', 'D:/'])
+  assert.notEqual(outputPathProblem(bad), null, bad);
+const report = { checkedAt: new Date().toISOString(), suite: 'expanded-tools-contracts', backendActionParity: 'PASS', oldAddinGuard: 'PASS', sessionProbeErrors: 'PASS', outputPathRules: 'PASS', reports, scope: 'MCP transport/schema/routing only. Does not execute Pro SDK methods.' };
 await writeFile(new URL('./validation-tools.json', import.meta.url), JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report, null, 2));

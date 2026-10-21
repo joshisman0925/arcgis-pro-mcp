@@ -58,6 +58,19 @@ export const definitions = [
   ['save_project', 'Save current project', 'Save all current project map/layout changes to its existing APRX; does not save feature edits.', { ...base, confirmEntireProject: z.literal(true) }, false, true, false],
 ];
 
+// Win32 rewrites some spellings (alternate data streams, device names, trailing dots/spaces), so a path
+// that looks new and local could reach an existing file or a device. Refuse them before calling Pro.
+const reservedName = /^(con|prn|aux|nul|conin\$|conout\$|com[0-9¹²³]|lpt[0-9¹²³])(\.|$)/i;
+export function outputPathProblem(outputPath) {
+  if (!/^[a-zA-Z]:[\\/]/.test(outputPath)) return 'Output must be an absolute local Windows path (drive letter; no UNC or device prefix)';
+  const segments = outputPath.slice(3).split(/[\\/]/);
+  if (/[\u0000-\u001f<>:"|?*]/.test(outputPath.slice(3))) return 'Output path contains a character Windows reserves (including : for alternate data streams)';
+  if (segments.includes('..')) return 'Output must be an absolute local Windows path without traversal';
+  if (segments.some(s => s === '' || s === '.' || /[. ]$/.test(s))) return 'Output path segments must not be empty, ".", or end with a dot or space';
+  if (segments.some(s => reservedName.test(s))) return 'Output path must not use a reserved Windows device name';
+  return null;
+}
+
 export const toolNames = definitions.map(([name]) => name);
 export const legacyActions = new Set(['ping', 'get_map', 'get_fields', 'get_selection', 'set_visibility', 'rename_layer']);
 
@@ -67,7 +80,7 @@ export function inputSchema(name, shape) {
     if (name === 'select_features' && !args.filters.length && !args.objectIds?.length) fail('Provide filters or Object IDs');
     if (name === 'zoom_to' && args.target !== 'full' && !args.layerUri) fail('This zoom target requires layerUri');
     if (name === 'set_camera' && Object.keys(args).length === 1) fail('Provide at least one camera property');
-    if (['export_map', 'export_layout', 'run_geoprocessing'].includes(name) && (!/^[a-zA-Z]:[\\/]/.test(args.outputPath) || /(^|[\\/])\.\.([\\/]|$)/.test(args.outputPath))) fail('Output must be an absolute local Windows path without traversal');
+    if (['export_map', 'export_layout', 'run_geoprocessing'].includes(name)) { const problem = outputPathProblem(args.outputPath); if (problem) fail(problem); }
     if (['export_map', 'export_layout'].includes(name) && !args.outputPath.toLowerCase().endsWith('.' + args.format)) fail('Output extension must match format');
     if (name === 'create_feature') {
       try {
