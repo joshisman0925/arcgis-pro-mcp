@@ -32,3 +32,15 @@
 - 修正：server.mjs 探測改用 [Diagnostics.Process]::GetProcessesByName 與語言內建語法，不呼叫任何 cmdlet；每行輸出「PID:Base64(UTF-8 標題)」，Node 端解析，非預期輸出回報錯誤。逾時與失敗回傳可行動訊息，逾時維持 30 秒。本機實跑 0.3 秒；以 explorer 代換驗證標題解碼。
 - 測試：test-tools.mjs 以假 exec 驗證逾時、失敗、中文標題、空標題、空輸出、非預期輸出，並確認命令不含 cmdlet；test-plugin.mjs 記錄各階段計時，並要求 list_sessions 在白名單環境下少於 10 秒。
 - 已重建 Plugin bundle；node --check 通過。本機 F5 未跑，以 PR CI 驗證。
+
+## 2026-10-22（Claude 排程）— outputPath Win32 別名路徑強化
+
+- 起始：main 落後 origin 2 筆（PR #2 dependabot 合併），已 fast-forward；未追蹤 docs/claude-schedule-handoff.md 保留不提交。
+- P0 審查 Pipe 與路徑：Named Pipe 已使用 PipeOptions.CurrentUserOnly、單一連線、10 秒讀取期限與 1 MiB 上限，未發現需修正項。
+- 發現：tools.mjs 的 outputPath 只檢查磁碟代號開頭與 `..`。`D:/x/a.txt:s.png`（替代資料流）、`D:/exports/NUL.png`（保留裝置）、`D:/a/b.png.`（結尾句點被 Win32 去除）都能通過，Add-in NewOutput 的 File.Exists 也擋不住寫入既有檔案的資料流，可繞過「只寫新檔」規則。
+- 修正：新增 outputPathProblem()，export_map／export_layout／run_geoprocessing 共用；拒絕 UNC／裝置前綴、`..`、`.`、空片段、結尾句點／空白、`: < > " | ? *` 與控制字元、CON/PRN/AUX/NUL/COM*/LPT*/CONIN$/CONOUT$。Add-in 未修改（不需重新編譯或發 Add-in）。
+- 測試：test-tools.mjs 新增 4 筆經 MCP 的拒絕案例，以及 6 筆允許／19 筆拒絕的純函式案例；validation 報告加 outputPathRules。
+- 證據：node --check（tools、test-tools、bundle）通過；git diff --check 乾淨；以臨時腳本直接呼叫 outputPathProblem 純函式，6 允許／23 拒絕全部符合預期（非完整測試套件）。已用 build-plugin 重建，bundle 與 SECURITY.md／TOOLS.md 副本一致。
+- 未執行：本機 F5「Connector — expanded tools tests」、「protocol and pipe tests」、「isolated plugin bundle test」未跑，以 PR CI（windows-latest）驗證。
+- 已知限制（已寫入 SECURITY.md）：對應網路磁碟機代號仍視為本機；Add-in NewOutput 未重複片段規則。
+- 下一步：Add-in NewOutput 補同等檢查與 DriveType.Network 拒絕（需 Pro SDK 建置、隨下次 Add-in 版本發布）；依賴與供應鏈巡檢（npm audit 結果紀錄）；同步 TOOLS／LIVE-ACCEPTANCE／README 驗收描述。

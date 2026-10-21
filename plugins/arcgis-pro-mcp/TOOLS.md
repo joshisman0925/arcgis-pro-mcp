@@ -61,7 +61,7 @@ filters 採 AND，支援 `eq/ne/gt/ge/lt/le/is_null/not_null`；目前比較支�
 
 ## 匯出與地理處理
 
-`export_map`／`export_layout` 支援 PNG、PDF 與 72–600 DPI，要求本機絕對路徑及已存在的父資料夾。輸出副檔名必須相符；寫入前檢查既有目標並拒絕覆寫。地圖匯出可指定像素寬高，版面依其頁面尺寸。
+`export_map`／`export_layout` 支援 PNG、PDF 與 72–600 DPI，要求本機絕對路徑及已存在的父資料夾。輸出副檔名必須相符；寫入前檢查既有目標並拒絕覆寫；替代資料流、保留裝置名稱、結尾句點／空白等 Windows 別名路徑也會被拒絕（見 SECURITY.md「輸出路徑」，地理處理 outputPath 相同）。地圖匯出可指定像素寬高，版面依其頁面尺寸。
 
 `run_geoprocessing` 限定五項：
 
