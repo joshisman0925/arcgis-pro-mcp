@@ -5,6 +5,7 @@ import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { toolNames, definitions, outputPathProblem } from './tools.mjs';
 import { listSessions } from './server.mjs';
+import { lockfileProblems } from './scripts/check-lockfile.mjs';
 
 const layerUri = 'test-layer';
 const layer = { layerUri };
@@ -135,6 +136,13 @@ for (const ok of ['D:/exports/test.png', 'C:\\GIS\\專案\\out.gdb\\buffer_100m'
 for (const bad of ['//server/share/x.png', '\\\\server\\share\\x.png', '\\\\?\\C:\\x.png', 'x.png', 'D:x.png', 'D:/a.txt:s.png', 'D:/a/../b.png',
   'D:/a/./b.png', 'D:/a//b.png', 'D:/a/b.png.', 'D:/a /b.png', 'D:/con', 'D:/dir/aux.tif', 'D:/COM1.pdf', 'D:/lpt¹.png', 'D:/a|b.png', 'D:/a?.png', 'D:/a\u0001.png', 'D:/'])
   assert.notEqual(outputPathProblem(bad), null, bad);
-const report = { checkedAt: new Date().toISOString(), suite: 'expanded-tools-contracts', backendActionParity: 'PASS', oldAddinGuard: 'PASS', sessionProbeErrors: 'PASS', outputPathRules: 'PASS', reports, scope: 'MCP transport/schema/routing only. Does not execute Pro SDK methods.' };
+// Lockfile: only HTTPS npm registry tarballs with sha512 integrity may be installed by npm ci.
+const sri = 'sha512-' + 'A'.repeat(86) + '==';
+const pkg = (resolved, integrity = sri) => ({ lockfileVersion: 3, packages: { '': { name: 'x' }, 'node_modules/a': { resolved, integrity }, 'node_modules/w': { link: true } } });
+assert.deepEqual(lockfileProblems(pkg('https://registry.npmjs.org/a/-/a-1.0.0.tgz')), []);
+for (const bad of [pkg('http://registry.npmjs.org/a/-/a-1.0.0.tgz'), pkg('git+ssh://git@github.com/x/a.git'), pkg('https://evil.example/a.tgz'),
+  pkg('https://registry.npmjs.org.evil.example/a.tgz'), pkg(undefined), pkg('https://registry.npmjs.org/a/-/a-1.0.0.tgz', 'sha1-abc='), { lockfileVersion: 1, packages: {} }])
+  assert.notEqual(lockfileProblems(bad).length, 0, JSON.stringify(bad));
+const report = { checkedAt: new Date().toISOString(), suite: 'expanded-tools-contracts', backendActionParity: 'PASS', oldAddinGuard: 'PASS', sessionProbeErrors: 'PASS', outputPathRules: 'PASS', lockfileRules: 'PASS', reports, scope: 'MCP transport/schema/routing only. Does not execute Pro SDK methods.' };
 await writeFile(new URL('./validation-tools.json', import.meta.url), JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report, null, 2));

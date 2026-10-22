@@ -23,6 +23,18 @@ codex plugin add arcgis-pro-mcp@joshisman-gis
 - https://developers.openai.com/plugins/deploy/desktop-only
 - https://developers.openai.com/plugins/deploy/submission
 
+## 提交資格查核（2026-10-23）
+
+三條管道分開看，自訂市集可安裝不等於官方收錄：
+
+| 管道 | 目前要求（官方來源） | 本專案狀態 |
+| --- | --- | --- |
+| OpenAI 官方 Plugin 目錄 | 本機 stdio MCP 只限核准合作夥伴：須由 OpenAI 窗口把 organization ID 列入允許名單，完成個人／企業身分驗證；入口網站選「Skills only」上傳含本機 MCP 設定的 ZIP。另需 logo／composerIcon、網站／支援／隱私／條款四個 HTTPS 網址、5 個正向與 3 個負向測試案例、可供審核者觀看的操作影片、release notes 與政策聲明；不可含 lifecycle hooks、apps 參照或憑證；每個 Plugin 只能一個 MCP Server。來源：[submission](https://developers.openai.com/plugins/deploy/submission)、[desktop-only](https://developers.openai.com/plugins/deploy/desktop-only) | 套件結構、圖示、四個網址、單一 stdio MCP、無 hooks 已具備。**阻礙**：organization 未列入允許名單、身分驗證未完成（需使用者／組織管理者向 OpenAI 申請）；測試案例、操作影片與 release notes 尚未備妥；資料編輯／儲存工具尚未真實驗收（見 LIVE-ACCEPTANCE.md） |
+| MCP Registry | 只存 metadata：套件須先發布到公開 registry（npm 等），package.json 加 `mcpName`，以 `mcp-publisher` 送出 server.json（name 與 mcpName 相同、描述 ≤100 字元、transport stdio）；GitHub 登入時名稱須為 `io.github.<帳號>/…`。來源：[quickstart](https://github.com/modelcontextprotocol/registry/blob/main/docs/modelcontextprotocol-io/quickstart.mdx) | 尚未發布 npm（package.json 為 private），也沒有 server.json。另需注意 MCP Server 單獨安裝不含 Pro Add-in，使用者仍須另外安裝 Add-in。是否發布 npm 套件需使用者決定 |
+| 自訂市集（GitHub） | 本 repo 的 `.agents/plugins/marketplace.json`，見上方指令 | 可用；非官方收錄 |
+
+下次查核時重新開啟以上連結，記錄差異與查核日期。
+
 ## 維護者建置與驗證
 
 以 VSCode 建置工作產生 Add-in，然後執行 `Build portable plugin` 工作。F5 有協定、工具、真實 Pro、Plugin bundle 等驗證設定。測試只連接已開啟的 Pro；不會啟動或終止 Pro。

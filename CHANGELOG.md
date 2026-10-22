@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- 新增 scripts/check-lockfile.mjs，npm test 先檢查 package-lock.json 每個套件都來自 HTTPS npm registry 並附 sha512 integrity；test-tools 新增 HTTP、git、偽造網域、缺 integrity 等拒絕案例；SECURITY.md 補供應鏈說明。
+- 同步 TOOLS.md、LIVE-ACCEPTANCE.md 的真實 Pro 驗收狀態為 0.3.1（2026-10-16 唯讀與 28 個可還原工具通過；資料編輯、儲存與 export_layout 尚待驗收）；PUBLISHING.md 新增三管道提交資格查核表。
 - 加強 export_map／export_layout／run_geoprocessing 的 outputPath 檢查：拒絕替代資料流（`:`）、保留裝置名稱（CON、NUL、COM1…）、結尾句點／空白、`.`／空片段及 Windows 保留字元，避免繞過「只寫新檔」規則；test-tools 新增對應拒絕與允許案例，SECURITY.md 補說明與限制。
 
 - 修正 list_sessions 在 MCP 用戶端環境變數白名單下每次需 20–30 秒、可能逾時的問題：探測改用 .NET Process API，不再載入 Get-Process／ConvertTo-Json 所屬模組；視窗標題以 UTF-8 Base64 傳回，不受主控台字碼頁影響；逾時或失敗改回傳可行動的錯誤訊息。
