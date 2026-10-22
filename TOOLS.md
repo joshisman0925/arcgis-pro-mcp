@@ -1,6 +1,6 @@
-# 工具使用指南（0.3.0）
+# 工具使用指南（0.3.x）
 
-共 38 個 MCP 工具，對應 Pro Add-in 37 個操作（`list_sessions` 由 Node.js 處理）。新增工具需要 Add-in 0.3.0；若仍載入舊版，Server 會回傳升級提示。
+共 38 個 MCP 工具，對應 Pro Add-in 37 個操作（`list_sessions` 由 Node.js 處理）。38 工具自 0.3.0 起提供，需要 Add-in 0.3.0 以上（目前 0.3.1）；若仍載入舊版，Server 會回傳升級提示。
 
 ## 功能分類
 
@@ -91,4 +91,9 @@ Project 工具目前不提供自訂 datum transformation；涉及不同 datum �
 
 0.3.0 已完成 Pro 3.3 SDK 編譯、38 工具的新舊 MCP 流程、參數拒絕與舊 Add-in 防護測試，以及官方 Inspector 嚴格 schema 檢查。模擬測試驗證 MCP 的參數、分派與錯誤，不代表已在真實 Pro 執行所有 SDK 操作。
 
-真實環境驗收需在專案副本及測試資料上，安裝 0.3.0 Add-in 後進行。屬性編輯、建立圖徵、地理處理、3D 高程與匯出等新操作尚待此輪真實環境驗證。
+0.3.1 於 2026-10-16 在真實 Pro 3.3（Add-in 0.3.1）完成兩輪驗收，逐項狀態見 [LIVE-ACCEPTANCE.md](LIVE-ACCEPTANCE.md)：
+
+- 唯讀：連線、地圖、欄位、選取、專案狀態、地圖／版面清單、相機、GP 白名單、屬性查詢、資料來源、符號與柵格資訊。
+- 可還原操作（28 個工具）：圖層新增／分組／排序／改名／移除、顯示與透明度、條件選取與縮放、單一／分級設色與還原、3D 高程與垂直誇張、地圖切換、相機、PNG／PDF 地圖匯出，以及 Buffer、Clip、Intersect、Project、CopyFeatures 五項 GP。只寫入暫存資料，未儲存專案或資料編輯。
+
+尚未真實驗收：`update_attributes`、`create_feature`、`save_edits`、`save_project`、`export_layout`（測試專案無版面）。這幾項需在隔離測試專案與複製資料上進行，完成前不要在正式資料使用。

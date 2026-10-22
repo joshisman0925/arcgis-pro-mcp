@@ -44,3 +44,15 @@
 - 未執行：本機 F5「Connector — expanded tools tests」、「protocol and pipe tests」、「isolated plugin bundle test」未跑，以 PR CI（windows-latest）驗證。
 - 已知限制（已寫入 SECURITY.md）：對應網路磁碟機代號仍視為本機；Add-in NewOutput 未重複片段規則。
 - 下一步：Add-in NewOutput 補同等檢查與 DriveType.Network 拒絕（需 Pro SDK 建置、隨下次 Add-in 版本發布）；依賴與供應鏈巡檢（npm audit 結果紀錄）；同步 TOOLS／LIVE-ACCEPTANCE／README 驗收描述。
+
+## 2026-10-23（Claude 排程，週五）— 供應鏈 lockfile 檢查、驗收文件同步、官方資格查核
+
+- 起始：main 與 origin 同步、無開啟中 PR、最近 main CI／Security Scan 皆成功；未追蹤 docs/claude-schedule-handoff.md 保留不提交。專案無 AGENTS.md。
+- 依賴巡檢：`npm audit --registry=https://registry.npmjs.org/` 0 漏洞（prod 1、dev 178）。`npm outdated` 只有 dev 依賴 @modelcontextprotocol/inspector 2.11.0 → 2.12.0，交 Dependabot（7 天冷卻）處理，不手動升。觀察：本機 npm 使用者設定 registry 為 `http://registry.npmjs.org/`（明文），audit 回 426；repo lockfile 不受影響，但建議使用者把本機設定改回 https。
+- 新增 scripts/check-lockfile.mjs：每個 lock 套件須 `https://registry.npmjs.org/` 來源與 sha512 integrity、lockfileVersion ≥ 2；接到 `npm test` 最前面（CI Connector tests 會執行）。test-tools.mjs 加 1 筆允許、7 筆拒絕（HTTP、git+ssh、其他網域、`registry.npmjs.org.evil.example`、缺 resolved、sha1、lockfile v1）。SECURITY.md 補說明。
+- 驗收文件同步：依本機 validation-live.json（2026-10-16，Add-in 0.3.1，唯讀 PASS、未寫入）與 validation-live-safe.json（28 個工具 PASS、未存專案／未改資料），更新 TOOLS.md「驗證界線」與 LIVE-ACCEPTANCE.md 狀態表；明列未驗收：update_attributes、create_feature、save_edits、save_project、export_layout。validation 報告仍不入版控，文件不含其中私人路徑。
+- 官方查核（2026-10-23）：寫入 PUBLISHING.md「提交資格查核」表。OpenAI 本機 MCP 仍限允許名單合作夥伴；submission 頁新列 5 正／3 負測試案例、審核影片、release notes、logo／composerIcon、四個 HTTPS 網址。MCP Registry 需先發布公開 npm 套件並加 mcpName／server.json。
+- 證據：`node scripts/check-lockfile.mjs` 對實際 lockfile 通過（181 套件）；scratchpad 臨時腳本直接呼叫 lockfileProblems 純函式，1 允許／7 拒絕符合預期；node --check（test-tools、check-lockfile）通過；build-plugin 重建後 TOOLS.md、SECURITY.md 副本 cmp 一致，bundle 無差異。
+- 未執行：本機 F5「Connector — expanded tools tests」「protocol and pipe tests」「isolated plugin bundle test」未跑，以 PR CI（windows-latest）驗證。
+- 版本：未變更版本、未發版（只有文件與測試，無可發布執行期變更）。
+- 下一步：撰寫官方審核用 5 正／3 負測試案例與 release notes 草稿；Add-in NewOutput 同等路徑檢查（需 Pro SDK）；隔離專案驗收編輯／儲存／export_layout（需使用者提供拋棄式 APRX＋F5）。
