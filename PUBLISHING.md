@@ -43,7 +43,7 @@ codex plugin add arcgis-pro-mcp@joshisman-gis
 
 ## PR 與中央檢覈
 
-從功能分支開 PR 至 `main`，不得直接推送。`.github/workflows/ci.yml` 與 `security.yml` 呼叫 `singi0771/ci-standards@v1`，沿用中央版更新；非 Python／Docker 專案關閉對應檢查，開啟 workflow lint 與所有中央安全掃描。Dependabot 管理 npm 與 GitHub Actions 更新。
+從功能分支開 PR 至 `main`，不得直接推送。`.github/workflows/ci.yml` 與 `security.yml` 呼叫 `singi0771/ci-standards@v2`，沿用中央版更新；非 Python／Docker 專案關閉對應檢查，開啟 workflow lint 與所有中央安全掃描。Dependabot 管理 npm 與 GitHub Actions 更新。
 
 另外的 Windows `Connector tests` 執行協定與工具模擬測試、隔離 Plugin 測試及 DLL 路徑檢查，不啟動 ArcGIS Pro。C# 完整建置與真實 Pro 驗證仍需本機 SDK／Pro，透過 VSCode 建置工作與 F5 執行；GitHub runner 不附帶 Esri SDK。
 

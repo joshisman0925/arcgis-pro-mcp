@@ -4,28 +4,32 @@ on:
   push:
     branches: [main]
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, edited]
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.event.action == 'edited' && github.event.changes.base == null && format('ci-edit-{0}', github.run_id) || format('ci-{0}', github.ref) }}
   cancel-in-progress: true
 
 jobs:
   ci:
-    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
-    uses: singi0771/ci-standards/.github/workflows/ci-reusable.yml@v1
+    if: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.event.action != 'edited' || github.event.changes.base != null)) }}
+    uses: singi0771/ci-standards/.github/workflows/ci-reusable.yml@v2
     with:
       run-python: false
       run-docker-build: false
       run-hadolint: false
       run-actionlint: true
       run-shellcheck: false
+      python-version: "3.12"
+      # ArcGIS Pro add-in references DLLs under C:\Program Files\ArcGIS\Pro; hosted runners cannot build it.
+      # The connector job below covers the TypeScript side; the add-in is built locally.
+      run-dotnet: false
   connector:
     name: Connector tests
-    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
+    if: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.event.action != 'edited' || github.event.changes.base != null)) }}
     runs-on: windows-latest
     timeout-minutes: 15
     steps:

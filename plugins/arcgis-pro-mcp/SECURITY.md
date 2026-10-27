@@ -26,7 +26,7 @@ MCP 的 `openWorldHint` 描述工具可能接觸的外部實體，不是傳輸�
 
 ## 開發與合併
 
-變更透過 PR 合併至 `main`，須通過中央 `ci-standards` 的 CI／安全 Gate，以及本專案的測試。中央流程以 `singi0771/ci-standards@v1` 更新，屬於受信任的供應鏈來源。掃描通過不等於沒有漏洞。
+變更透過 PR 合併至 `main`，須通過中央 `ci-standards` 的 CI／安全 Gate，以及本專案的測試。中央流程以 `singi0771/ci-standards@v2` 更新，屬於受信任的供應鏈來源。掃描通過不等於沒有漏洞。
 
 npm 依賴以 `package-lock.json` 鎖定，CI 一律 `npm ci --ignore-scripts`。`npm test` 先執行 `scripts/check-lockfile.mjs`：每個套件須從 `https://registry.npmjs.org/` 下載並附 sha512 integrity，拒絕 git、其他網址或 HTTP 來源，避免被改寫的 lockfile 悄悄換來源。Dependabot 更新有 7 天冷卻期。
 
