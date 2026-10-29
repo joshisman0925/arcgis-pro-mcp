@@ -14,7 +14,7 @@
   "requires_local_executor": true,
   "interface": {
     "displayName": "ArcGIS Pro MCP",
-    "shortDescription": "Connect to ArcGIS Pro maps and GIS tools on Windows.",
+    "shortDescription": "ArcGIS Pro maps and GIS tools",
     "longDescription": "A Windows desktop integration with 38 tools for maps, layers, queries, symbology, raster information, exports and bounded GIS edits. Requires ArcGIS Pro 3.3 or newer and Node.js 20 or newer. Not affiliated with Esri.",
     "developerName": "joshisman0925",
     "category": "Productivity",

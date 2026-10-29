@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- 新增 docs/submission：OpenAI 官方審核用 5 個正向／3 個負向測試案例（官方欄位格式）與 release notes 草稿；scripts/check-submission.mjs 接進 npm test，檢查案例數量、必填欄位、只引用已註冊工具、不含審核憑證，以及 manifest 欄位上限、HTTPS 網址、圖示路徑與無 hooks。
+- Plugin shortDescription 由 52 字元縮為「ArcGIS Pro maps and GIS tools」，符合官方 30 字元上限；已重建 Plugin。
 - 新增 scripts/check-lockfile.mjs，npm test 先檢查 package-lock.json 每個套件都來自 HTTPS npm registry 並附 sha512 integrity；test-tools 新增 HTTP、git、偽造網域、缺 integrity 等拒絕案例；SECURITY.md 補供應鏈說明。
 - 同步 TOOLS.md、LIVE-ACCEPTANCE.md 的真實 Pro 驗收狀態為 0.3.1（2026-10-16 唯讀與 28 個可還原工具通過；資料編輯、儲存與 export_layout 尚待驗收）；PUBLISHING.md 新增三管道提交資格查核表。
 - 加強 export_map／export_layout／run_geoprocessing 的 outputPath 檢查：拒絕替代資料流（`:`）、保留裝置名稱（CON、NUL、COM1…）、結尾句點／空白、`.`／空片段及 Windows 保留字元，避免繞過「只寫新檔」規則；test-tools 新增對應拒絕與允許案例，SECURITY.md 補說明與限制。

@@ -7,14 +7,15 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node scripts/check-lockfile.mjs && node test.mjs && node test-tools.mjs",
+    "test": "node scripts/check-lockfile.mjs && node scripts/check-submission.mjs && node test.mjs && node test-tools.mjs",
     "test:tools": "node test-tools.mjs",
     "test:pro": "node test-pro.mjs",
     "test:inspector": "node test-inspector.mjs",
     "build:plugin": "node scripts/build-plugin.mjs",
     "test:plugin": "node test-plugin.mjs",
     "test:live-safe": "node test-live-safe.mjs",
-    "check:lockfile": "node scripts/check-lockfile.mjs"
+    "check:lockfile": "node scripts/check-lockfile.mjs",
+    "check:submission": "node scripts/check-submission.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.3.1",
