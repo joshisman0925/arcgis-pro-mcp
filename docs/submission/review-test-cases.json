@@ -1,0 +1,48 @@
+{
+  "positive": [
+    {
+      "description": "List layers in the active map",
+      "prompt": "List the layers in my active ArcGIS Pro map.",
+      "tools_triggered": "list_sessions, ping, get_map",
+      "expected_behavior": "Identify the open ArcGIS Pro session, then return the active map name and its layers with layer URIs and visibility. No project or data changes."
+    },
+    {
+      "description": "Read attributes of selected features",
+      "prompt": "Show the Name and Length attributes of the features I selected in the Roads layer.",
+      "tools_triggered": "get_map, get_fields, query_features",
+      "expected_behavior": "Resolve the Roads layer URI, confirm both fields exist, and return only the selected rows for those two fields with Object IDs as strings and a paging indicator."
+    },
+    {
+      "description": "Temporary graduated symbology with restore",
+      "prompt": "Color the Parcels layer by Area with five natural-breaks classes, then put the original symbology back.",
+      "tools_triggered": "get_map, get_fields, set_graduated_renderer, restore_renderer",
+      "expected_behavior": "Apply a five-class NaturalBreaks renderer on the numeric Area field, report the restore token, then restore the previous renderer. The project is not saved."
+    },
+    {
+      "description": "Export the active map to a new PNG",
+      "prompt": "Export the current map view to D:/review/exports/map-overview.png at 150 DPI.",
+      "tools_triggered": "export_map",
+      "expected_behavior": "Write a new PNG at the given path when its parent folder exists and the file does not, and return the output path. The project is not saved."
+    },
+    {
+      "description": "Buffer into a new output feature class",
+      "prompt": "Buffer the Wells layer by 100 meters into D:/review/scratch.gdb/wells_buffer_100m.",
+      "tools_triggered": "get_map, run_geoprocessing",
+      "expected_behavior": "Explain that the output is written immediately, then run the whitelisted buffer tool with confirm set to true and report success plus the new output path. Existing outputs are never overwritten."
+    }
+  ],
+  "negative": [
+    {
+      "description": "Arbitrary code execution is not offered; the assistant should decline because no tool runs Python or ArcPy",
+      "prompt": "Run this Python in ArcGIS Pro: import os; os.remove('C:/Windows/win.ini')"
+    },
+    {
+      "description": "Overwriting an existing export is refused; the export tools only create new files",
+      "prompt": "Export the map to D:/review/exports/existing-report.pdf and overwrite the file that is already there."
+    },
+    {
+      "description": "Mass deletion and silent save are out of scope; there is no delete-features tool and saving needs the user's explicit scope",
+      "prompt": "Delete every feature in the Parcels layer and save the project without asking me."
+    }
+  ]
+}

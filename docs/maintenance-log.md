@@ -56,3 +56,16 @@
 - 未執行：本機 F5「Connector — expanded tools tests」「protocol and pipe tests」「isolated plugin bundle test」未跑，以 PR CI（windows-latest）驗證。
 - 版本：未變更版本、未發版（只有文件與測試，無可發布執行期變更）。
 - 下一步：撰寫官方審核用 5 正／3 負測試案例與 release notes 草稿；Add-in NewOutput 同等路徑檢查（需 Pro SDK）；隔離專案驗收編輯／儲存／export_layout（需使用者提供拋棄式 APRX＋F5）。
+
+## 2026-10-30（Claude 排程，週五）— 官方審核測試案例與 manifest 上限檢查
+
+- 起始：main 與 origin 同步、無開啟中 PR、main 最近 CI／Security Scan 成功；未追蹤 docs/claude-schedule-handoff.md 保留不提交。專案無 AGENTS.md。
+- 依賴巡檢：`npm audit --registry=https://registry.npmjs.org/` 0 漏洞。`npm outdated`：@modelcontextprotocol/server、client 2.3.1 → 2.4.0（server 為執行期依賴，次版更新），inspector 2.11.0 → 2.13.0；交 Dependabot（7 天冷卻）處理，不手動升。
+- 官方查核（2026-10-30）：submission、desktop-only、build/plugins、MCP Registry quickstart 四頁皆可開啟；資格不變（本機 MCP 仍限允許名單合作夥伴）。新明列測試案例欄位格式與 manifest 欄位上限，寫入 PUBLISHING.md。submission 頁內容較長，後段欄位上限取自摘要，提交前需在入口網站再確認。
+- 發現：plugin.json 的 shortDescription 為 52 字元，超過官方 30 字元上限，入口網站可能拒收。已縮為「ArcGIS Pro maps and GIS tools」（29 字元），重建 Plugin，bundle 只有兩份 manifest 變動。
+- 新增 docs/submission/review-test-cases.json（5 正：列圖層、讀選取屬性、暫時分級設色並還原、匯出新 PNG、Buffer 至新輸出；3 負：任意 Python、覆寫既有匯出、刪除全部圖徵並靜默儲存）、docs/submission/README.md（release notes 草稿、測試資料需求、剩餘條件）。
+- 新增 scripts/check-submission.mjs 並接進 `npm test`；test-tools.mjs 加 7 筆 manifest 拒絕與 6 筆案例拒絕案例。
+- 證據：`node scripts/check-submission.mjs` 修正前回報 shortDescription 52 > 30，修正後通過；scratchpad 臨時腳本直接呼叫純函式 15 項全部符合預期；node --check（test-tools、check-submission）通過。
+- 未執行：本機 F5「Connector — expanded tools tests」「isolated plugin bundle test」未跑，以 PR CI（windows-latest）驗證。測試案例尚未以拋棄式 APRX 實跑。
+- 版本：未變更版本、未發版（manifest 文字與文件／檢查變更）。
+- 下一步：建立拋棄式測試 APRX 後實跑案例並錄影（需使用者＋Pro）；Add-in NewOutput 同等路徑檢查（需 Pro SDK）；評估 GIS skill（P2）。

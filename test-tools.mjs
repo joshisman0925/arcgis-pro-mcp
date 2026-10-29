@@ -6,6 +6,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { toolNames, definitions, outputPathProblem } from './tools.mjs';
 import { listSessions } from './server.mjs';
 import { lockfileProblems } from './scripts/check-lockfile.mjs';
+import { manifestProblems, testCaseProblems } from './scripts/check-submission.mjs';
 
 const layerUri = 'test-layer';
 const layer = { layerUri };
@@ -143,6 +144,22 @@ assert.deepEqual(lockfileProblems(pkg('https://registry.npmjs.org/a/-/a-1.0.0.tg
 for (const bad of [pkg('http://registry.npmjs.org/a/-/a-1.0.0.tgz'), pkg('git+ssh://git@github.com/x/a.git'), pkg('https://evil.example/a.tgz'),
   pkg('https://registry.npmjs.org.evil.example/a.tgz'), pkg(undefined), pkg('https://registry.npmjs.org/a/-/a-1.0.0.tgz', 'sha1-abc='), { lockfileVersion: 1, packages: {} }])
   assert.notEqual(lockfileProblems(bad).length, 0, JSON.stringify(bad));
-const report = { checkedAt: new Date().toISOString(), suite: 'expanded-tools-contracts', backendActionParity: 'PASS', oldAddinGuard: 'PASS', sessionProbeErrors: 'PASS', outputPathRules: 'PASS', lockfileRules: 'PASS', reports, scope: 'MCP transport/schema/routing only. Does not execute Pro SDK methods.' };
+// Submission: manifest field limits and the 5 positive / 3 negative reviewer case shape.
+const manifest = JSON.parse(await readFile(new URL('./plugin-template/plugin.json', import.meta.url), 'utf8'));
+const reviewCases = JSON.parse(await readFile(new URL('./docs/submission/review-test-cases.json', import.meta.url), 'utf8'));
+assert.deepEqual(manifestProblems(manifest), []);
+assert.deepEqual(testCaseProblems(reviewCases), []);
+const ui = m => m.extensions['com.openai'].interface;
+for (const edit of [m => { ui(m).shortDescription = 'x'.repeat(31); }, m => { ui(m).supportURL = 'http://example.com'; }, m => { ui(m).privacyPolicyURL = 'https://u:p@example.com'; },
+  m => { ui(m).defaultPrompt = ['a', 'b', 'c', 'd']; }, m => { ui(m).logo = 'assets/icon.svg'; }, m => { m.name = 'ArcGIS_Pro'; }, m => { m.extensions['com.openai'].hooks = {}; }]) {
+  const bad = structuredClone(manifest); edit(bad);
+  assert.notEqual(manifestProblems(bad).length, 0, JSON.stringify(ui(bad)));
+}
+for (const edit of [c => { c.positive.pop(); }, c => { c.negative.push(c.negative[0]); }, c => { c.positive[0].tools_triggered = 'get_map, run_python'; },
+  c => { delete c.positive[1].expected_behavior; }, c => { c.negative[0].prompt = ' '; }, c => { c.positive[2].test_credentials = 'x'; }]) {
+  const bad = structuredClone(reviewCases); edit(bad);
+  assert.notEqual(testCaseProblems(bad).length, 0, JSON.stringify(bad));
+}
+const report = { checkedAt: new Date().toISOString(), suite: 'expanded-tools-contracts', backendActionParity: 'PASS', oldAddinGuard: 'PASS', sessionProbeErrors: 'PASS', outputPathRules: 'PASS', lockfileRules: 'PASS', submissionRules: 'PASS', reports, scope: 'MCP transport/schema/routing only. Does not execute Pro SDK methods.' };
 await writeFile(new URL('./validation-tools.json', import.meta.url), JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report, null, 2));
