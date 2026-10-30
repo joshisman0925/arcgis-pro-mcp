@@ -69,3 +69,10 @@
 - 未執行：本機 F5「Connector — expanded tools tests」「isolated plugin bundle test」未跑，以 PR CI（windows-latest）驗證。測試案例尚未以拋棄式 APRX 實跑。
 - 版本：未變更版本、未發版（manifest 文字與文件／檢查變更）。
 - 下一步：建立拋棄式測試 APRX 後實跑案例並錄影（需使用者＋Pro）；Add-in NewOutput 同等路徑檢查（需 Pro SDK）；評估 GIS skill（P2）。
+
+## 2026-10-30（使用者授權自建拋棄式 APRX）— 審核用 fixture 產生腳本
+
+- 使用者明確授權自行建立拋棄式 APRX。新增 scripts/create-review-fixture.py（arc_env ArcPy 3.3），以 Pro 內建 Blank.aprx 另存 D:/review/review.aprx，刪除範本空地圖與 createMap 自動加入的線上底圖，建立 Review Map、Review Layout，及 review-data.gdb（Roads 6、Parcels 16、Wells 8，TWD97 TM2 合成資料）、空的 scratch.gdb、exports/existing-report.pdf。
+- 安全：只寫入 --root；非空且無標記檔的資料夾拒絕（以 scratchpad 內放有使用者檔案的資料夾實測，檔案未被動到）；已有 fixture 需 --replace。
+- 證據：實際產生 D:/review；ArcPy 回讀只有 Review Map／Review Layout、三圖層來源皆指向 review-data.gdb、無底圖、Area 為 Double、預設 gdb 為 scratch.gdb、PDF 7813 bytes、Buffer／PNG 輸出目標不存在。
+- 未執行：5 正／3 負實跑。目前 Pro 開的是使用者專案（05_Guoyingkeng_Shengfukeng），不在使用者專案上操作；需在 Pro 開啟 review.aprx 後實跑。

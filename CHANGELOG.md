@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- 新增 scripts/create-review-fixture.py：以 ArcPy 產生審核用拋棄式合成專案（review.aprx、Roads／Parcels／Wells、scratch.gdb、既有 PDF），只寫入指定資料夾，非本腳本建立的資料夾一律拒絕。
 - 新增 docs/submission：OpenAI 官方審核用 5 個正向／3 個負向測試案例（官方欄位格式）與 release notes 草稿；scripts/check-submission.mjs 接進 npm test，檢查案例數量、必填欄位、只引用已註冊工具、不含審核憑證，以及 manifest 欄位上限、HTTPS 網址、圖示路徑與無 hooks。
 - Plugin shortDescription 由 52 字元縮為「ArcGIS Pro maps and GIS tools」，符合官方 30 字元上限；已重建 Plugin。
 - 新增 scripts/check-lockfile.mjs，npm test 先檢查 package-lock.json 每個套件都來自 HTTPS npm registry 並附 sha512 integrity；test-tools 新增 HTTP、git、偽造網域、缺 integrity 等拒絕案例；SECURITY.md 補供應鏈說明。

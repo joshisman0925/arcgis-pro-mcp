@@ -10,7 +10,7 @@
 | P1 | 同步驗收文件與隔離測試 | README、TOOLS、LIVE-ACCEPTANCE 狀態一致；編輯、儲存及版面匯出有隔離資料驗收 | 2026-10-23 文件已同步 0.3.1 實測證據。剩編輯／儲存／export_layout 隔離驗收，需測試 APRX（含版面）、複製資料與 Pro F5 |
 | P1 | 安裝更新及打包驗證 | F5 協定、工具及隔離 Plugin 測試通過；版本及校驗值相符 | 原始碼修正不會自動更新已打包／已安裝 Plugin |
 | P2 | GIS skills | 盤點現有 skills，選一項高價值流程，包含觸發條件、資料最小化及成功／拒絕案例 | 使用 skill-creator，沿用 plugin-template 建置流程 |
-| P2 | 官方提交準備 | 分開列 OpenAI Plugin 目錄、MCP Registry、自訂市集要求；附官方來源、日期、資格與剩餘材料 | 2026-10-23 已查核並寫入 PUBLISHING.md。2026-10-30：5 正／3 負案例、release notes 草稿與 manifest 上限檢查已完成（docs/submission）。阻礙：OpenAI 允許名單與身分驗證（需使用者）；案例需拋棄式測試 APRX 實跑；操作影片（需使用者）；MCP Registry 需公開 npm 套件（需使用者決定） |
+| P2 | 官方提交準備 | 分開列 OpenAI Plugin 目錄、MCP Registry、自訂市集要求；附官方來源、日期、資格與剩餘材料 | 2026-10-23 已查核並寫入 PUBLISHING.md。2026-10-30：5 正／3 負案例、release notes 草稿與 manifest 上限檢查已完成（docs/submission）。阻礙：OpenAI 允許名單與身分驗證（需使用者）；拋棄式 fixture 已可由 scripts/create-review-fixture.py 產生（D:/review），待在 Pro 開啟後實跑；操作影片（需使用者）；MCP Registry 需公開 npm 套件（需使用者決定） |
 
 每次執行（每週五）查核官方規範，有實質進度時提供週摘要。公開發布、遠端操作及正式提交先備妥可審閱成果，再依授權規則辦理。
 
