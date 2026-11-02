@@ -76,3 +76,12 @@
 - 安全：只寫入 --root；非空且無標記檔的資料夾拒絕（以 scratchpad 內放有使用者檔案的資料夾實測，檔案未被動到）；已有 fixture 需 --replace。
 - 證據：實際產生 D:/review；ArcPy 回讀只有 Review Map／Review Layout、三圖層來源皆指向 review-data.gdb、無底圖、Area 為 Double、預設 gdb 為 scratch.gdb、PDF 7813 bytes、Buffer／PNG 輸出目標不存在。
 - 未執行：5 正／3 負實跑。目前 Pro 開的是使用者專案（05_Guoyingkeng_Shengfukeng），不在使用者專案上操作；需在 Pro 開啟 review.aprx 後實跑。
+
+## 2026-11-02（使用者開啟 review.aprx 後要求實跑）— 審核案例真實 Pro 實跑
+
+- 使用者在 Pro 開啟 D:/review/review.aprx。list_sessions 有兩個 Pro（使用者專案與 review），以 get_project_state 確認 104660 為 D:\review\review.aprx 後才操作；另一個 Pro 未操作。
+- 結果：5 正／3 負全部 PASS，明細寫入 docs/submission/README.md「實跑結果」。輸出以 ArcPy 唯讀核對：Buffer 8 面、WKID 3826、面積 31416 m²；PNG 1920×1080；既有 PDF 未被覆寫。
+- 發現（非缺陷）：開專案後無作用中地圖，需 activate_map；選取未隨專案保留，案例 2 改以 select_features 建立選取。editingEnabled 由 false 變 true，無待存編輯。
+- 清理：清除 Roads 選取；未儲存 APRX。D:/review 內留下 map-overview.png 與 wells_buffer_100m，下次以 --replace 重建。
+- 這是直接呼叫 MCP 工具的實測，不是 F5 自動測試；未經 ChatGPT 用戶端與審核影片。
+- 下一步：錄製審核影片（使用者）；Add-in NewOutput 路徑檢查（需 Pro SDK）；GIS skill 評估。
