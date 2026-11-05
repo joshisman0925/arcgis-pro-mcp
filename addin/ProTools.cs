@@ -95,8 +95,9 @@ internal static partial class ProTools
         return p.EnumerateArray().Select(e => long.Parse(e.GetString()!, CultureInfo.InvariantCulture)).Distinct().ToArray();
     }
     internal static string NewOutput(string path, string? extension = null) {
-        if (!Path.IsPathFullyQualified(path) || path.StartsWith("\\\\")) throw new ArgumentException("Output must be an absolute local path.");
+        if (OutputPath.Problem(path) is { } problem) throw new ArgumentException(problem);
         path = Path.GetFullPath(path);
+        if (OutputPath.DriveProblem(new DriveInfo(Path.GetPathRoot(path)!).DriveType) is { } driveProblem) throw new ArgumentException(driveProblem);
         if (File.Exists(path) || Directory.Exists(path)) throw new IOException("Output already exists; choose a new path.");
         if (extension != null && !Path.GetExtension(path).Equals(extension, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException($"Output extension must be {extension}");
         if (!Directory.Exists(Path.GetDirectoryName(path))) throw new DirectoryNotFoundException("Output parent folder must already exist.");

@@ -23,7 +23,7 @@ codex plugin add arcgis-pro-mcp@joshisman-gis
 - https://developers.openai.com/plugins/deploy/desktop-only
 - https://developers.openai.com/plugins/deploy/submission
 
-## 提交資格查核（2026-10-23，2026-10-30 複查）
+## 提交資格查核（2026-10-23，2026-10-30、2026-11-06 複查）
 
 三條管道分開看，自訂市集可安裝不等於官方收錄：
 
@@ -34,6 +34,8 @@ codex plugin add arcgis-pro-mcp@joshisman-gis
 | 自訂市集（GitHub） | 本 repo 的 `.agents/plugins/marketplace.json`，見上方指令 | 可用；非官方收錄 |
 
 2026-10-30 複查差異：四頁皆可開啟，資格與上述要求不變。官方明列測試案例欄位（正向 description、prompt、tools_triggered、expected_behavior；負向 description、prompt）、manifest 欄位上限（displayName／shortDescription ≤30 字元、defaultPrompt ≤3 則各 ≤128 字元）、圖示須為正方形且至少 48×48；審核憑證只能在入口網站填寫，ZIP 不可含 `test_credentials`／`reviewer_instructions`。原 shortDescription 52 字元超限，已縮短；`scripts/check-submission.mjs` 在 npm test 檢查上述規則。MCP Registry server.json schema 為 2025-12-11 版，仍需公開 npm 套件。
+
+2026-11-06 複查差異：三頁皆可開啟，資格不變（本機 MCP 仍須允許名單）。新注意事項：(1) 既有「Skills only」Plugin 之後不能再加 MCP Server，第一次上傳的 ZIP 就必須含本機 MCP 設定；(2) 提交前須在乾淨的 ChatGPT 桌面版安裝並跑主要流程，上架後顯示「Desktop only」；(3) 提交者須為組織擁有者或具「Apps Management Write」權限，身分驗證在組織設定完成；(4) 審核帳號不能需要 MFA、簡訊／Email 驗證碼或私人網路；(5) 四個網址須公開可開且屬同一發布者，manifest 的 homepage／author.url 不能代替；(6) name ≤64 字元小寫與單一連字號，defaultPrompt 不可重複、不可 @mention；圖示 PNG／JPEG／WebP／SVG ≤5 MiB。submission 頁後段（欄位上限、審核流程）取自摘要，提交前於入口網站再確認。MCP Registry 仍標示預覽版，可能有破壞性變更或資料重設；`mcp-publisher validate` 可只驗證 server.json 不發布。
 
 下次查核時重新開啟以上連結，記錄差異與查核日期。
 

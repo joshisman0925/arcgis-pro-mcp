@@ -85,3 +85,17 @@
 - 清理：清除 Roads 選取；未儲存 APRX。D:/review 內留下 map-overview.png 與 wells_buffer_100m，下次以 --replace 重建。
 - 這是直接呼叫 MCP 工具的實測，不是 F5 自動測試；未經 ChatGPT 用戶端與審核影片。
 - 下一步：錄製審核影片（使用者）；Add-in NewOutput 路徑檢查（需 Pro SDK）；GIS skill 評估。
+
+## 2026-11-06（Claude 排程，週五）— Add-in 端 outputPath 規則與網路磁碟機拒絕
+
+- 起始：main 與 origin 同步；開啟中 PR 只有 Dependabot #10（inspector 2.11.0 → 2.12.0，CI 全綠、落後 main）；main 最近 CI／Security Scan 成功。未追蹤 docs/claude-schedule-handoff.md 保留不提交。專案無 AGENTS.md。
+- 依賴巡檢：npm audit 0 漏洞。npm outdated：@modelcontextprotocol/server、client 2.3.1 → 2.4.0，inspector → 2.13.0，交 Dependabot 處理。
+- 問題：MCP 端 outputPath 已擋 Win32 別名路徑，但 Add-in NewOutput 只檢查完整路徑與非 UNC；同帳號程式直接呼叫 Named Pipe 可繞過，且對應網路磁碟機（`Z:` → `\\server\share`）被當本機。
+- 修正：新增 addin/OutputPath.cs（純函式、無 ArcGIS 相依），在 GetFullPath 正規化前套用與 tools.mjs 相同規則；正規化後以 DriveInfo 拒絕 Network 與 NoRootDirectory 磁碟。NewOutput 改呼叫它（export_map／export_layout／run_geoprocessing 共用）。
+- 測試：新增 tests/OutputPathTests（net8.0 主控台程式，只連結 OutputPath.cs）：6 允許、25 拒絕、null、6 種磁碟類型，共 37 項；CI Connector job 加 actions/setup-dotnet v6.0.0（SHA 釘選；v6.1.0 發布僅 3 天，未採用）後執行。
+- 證據：本機 dotnet run tests/OutputPathTests 37 項通過；dotnet build addin/Connector.csproj -c Release 對本機 Pro DLL 編譯 0 警告 0 錯誤（未重新打包 esriAddinX）；npm test 通過；npm run test:plugin 通過（list_sessions 759 ms）；build-plugin 重建，只有 SECURITY.md 副本變更；git diff --check 乾淨。
+- 未執行：未把新 DLL 安裝進 Pro 實測（需要重新打包、關閉／重開 Pro 安裝 Add-in，屬使用者環境操作）；VSCode F5 未操作（排程無人值守，以一次性終端指令執行）。
+- 官方查核（2026-11-06）：submission、desktop-only、MCP Registry quickstart 三頁可開啟，資格不變；差異寫入 PUBLISHING.md（Skills only 之後不能再加 MCP、須乾淨桌面安裝測試、提交者權限、審核帳號無 MFA、網址須同一發布者等）。
+- 版本：未變更版本、未發版。Add-in 執行期變更需下一版 Add-in（0.3.2）發布，待 Pro 實測後一起發。
+- 背景程序：只執行一次性指令（dotnet run／build、npm test、test:plugin、build-plugin），皆已自行結束；dotnet build server 可能常駐（MSBuild node reuse），已以 dotnet build-server shutdown 關閉。
+- 下一步：Pro 實測新 Add-in 後發 0.3.2（重新打包、checksum、CHANGELOG）；隔離驗收 update_attributes／create_feature／save_edits／export_layout（review.aprx）；GIS skill 評估（P2）。

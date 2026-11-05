@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Compiles only addin/OutputPath.cs (no ArcGIS references) so CI can test the Add-in path rules without ArcGIS Pro. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ProConnector</RootNamespace>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../addin/OutputPath.cs" Link="OutputPath.cs" />
+  </ItemGroup>
+</Project>
