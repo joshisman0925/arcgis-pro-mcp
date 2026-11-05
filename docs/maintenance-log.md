@@ -99,3 +99,4 @@
 - 版本：未變更版本、未發版。Add-in 執行期變更需下一版 Add-in（0.3.2）發布，待 Pro 實測後一起發。
 - 背景程序：只執行一次性指令（dotnet run／build、npm test、test:plugin、build-plugin），皆已自行結束；dotnet build server 可能常駐（MSBuild node reuse），已以 dotnet build-server shutdown 關閉。
 - 下一步：Pro 實測新 Add-in 後發 0.3.2（重新打包、checksum、CHANGELOG）；隔離驗收 update_attributes／create_feature／save_edits／export_layout（review.aprx）；GIS skill 評估（P2）。
+- 追加：Dependabot #10 被 #15 取代（server／client 2.3.1 → 2.4.0、inspector → 2.13.0），CI 全綠後合併（c8c3779）。執行期 SDK 升級但 Plugin bundle 未重建會讓套件仍內含 2.3.1，另開 PR 以 npm ci＋build-plugin 重建；THIRD-PARTY-NOTICES 原本寫死 2.3.1，build-plugin 改讀已安裝版本。本機 npm test、npm run test:plugin（list_sessions 352 ms）通過。

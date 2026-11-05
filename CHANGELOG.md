@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- 依 Dependabot 升級的 @modelcontextprotocol/server 2.4.0 重建 Plugin bundle（否則套件仍內含 2.3.1）；build-plugin 改由已安裝套件讀取 THIRD-PARTY-NOTICES 的 MCP SDK／Zod 版本，避免依賴升級後聲明過期。
+
 - Add-in 寫出新檔前（export_map／export_layout／run_geoprocessing）以新 `addin/OutputPath.cs` 重複 MCP 端的 outputPath 規則，並拒絕對應網路磁碟機與不存在的磁碟，避免同帳號程式直接呼叫 Named Pipe 繞過；新增 `tests/OutputPathTests`（31 路徑＋6 磁碟類型案例），CI Connector job 不需 ArcGIS Pro 即可執行。需下一版 Add-in 才生效，0.3.1 未包含。
 
 - 在拋棄式 review.aprx 上以真實 ArcGIS Pro 3.3／Add-in 0.3.1 實跑審核用 5 正／3 負案例，8/8 符合預期，結果記於 docs/submission/README.md。
