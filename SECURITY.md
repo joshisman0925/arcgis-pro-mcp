@@ -22,7 +22,9 @@ MCP 的 `openWorldHint` 描述工具可能接觸的外部實體，不是傳輸�
 
 `export_map`、`export_layout`、`run_geoprocessing` 的 `outputPath` 在送進 Pro 前由 MCP Server 檢查：必須是磁碟代號開頭的絕對路徑，拒絕 UNC／`\\?\` 裝置前綴、`..` 與 `.` 片段、空片段、結尾為句點或空白的片段、`: < > " | ? *` 與控制字元，以及 `CON`、`NUL`、`COM1`、`LPT1` 等保留裝置名稱。這些寫法會被 Win32 改寫，可能寫入既有檔案的替代資料流、裝置或與檢查時不同的檔案，繞過「只寫新檔」規則。Add-in 端另外拒絕既有目標並要求父資料夾已存在。
 
-限制：對應成磁碟代號的網路磁碟機（例如 `Z:`）仍視為本機路徑；Add-in 尚未重複上述片段規則，直接呼叫 Named Pipe 的同帳號程式不受 MCP Server 檢查（見上方信任範圍）。
+Add-in（`addin/OutputPath.cs`，自 0.3.1 之後的下一版）在 Win32 正規化前重複同一組規則，並拒絕對應到網路磁碟機的磁碟代號（例如 `Z:` → `\\server\share`）與不存在的磁碟，因此直接呼叫 Named Pipe 的同帳號程式也無法用這些寫法繞過。規則以 `tests/OutputPathTests` 在 CI 驗證（不需 ArcGIS Pro）。
+
+限制：已安裝的 Add-in 0.3.1 尚未包含上述 Add-in 端檢查，需等下一版 Add-in 發布並重新安裝。父資料夾內的 junction／符號連結仍會被跟隨；`subst` 建立的虛擬磁碟視為本機。
 
 ## 開發與合併
 

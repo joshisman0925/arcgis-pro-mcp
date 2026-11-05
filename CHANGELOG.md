@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add-in 寫出新檔前（export_map／export_layout／run_geoprocessing）以新 `addin/OutputPath.cs` 重複 MCP 端的 outputPath 規則，並拒絕對應網路磁碟機與不存在的磁碟，避免同帳號程式直接呼叫 Named Pipe 繞過；新增 `tests/OutputPathTests`（31 路徑＋6 磁碟類型案例），CI Connector job 不需 ArcGIS Pro 即可執行。需下一版 Add-in 才生效，0.3.1 未包含。
+
 - 在拋棄式 review.aprx 上以真實 ArcGIS Pro 3.3／Add-in 0.3.1 實跑審核用 5 正／3 負案例，8/8 符合預期，結果記於 docs/submission/README.md。
 - 新增 scripts/create-review-fixture.py：以 ArcPy 產生審核用拋棄式合成專案（review.aprx、Roads／Parcels／Wells、scratch.gdb、既有 PDF），只寫入指定資料夾，非本腳本建立的資料夾一律拒絕。
 - 新增 docs/submission：OpenAI 官方審核用 5 個正向／3 個負向測試案例（官方欄位格式）與 release notes 草稿；scripts/check-submission.mjs 接進 npm test，檢查案例數量、必填欄位、只引用已註冊工具、不含審核憑證，以及 manifest 欄位上限、HTTPS 網址、圖示路徑與無 hooks。
