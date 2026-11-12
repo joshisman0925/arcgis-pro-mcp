@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile, cp, mkdtemp, access } from 'node:fs/promises';
+import { readFile, cp, mkdtemp, access, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { createHash } from 'node:crypto';
@@ -19,11 +19,24 @@ const legacy = await json('.codex-plugin/plugin.json');
 assert.equal(legacy.version, manifest.version);
 const config = await json('mcp.json');
 assert.deepEqual((await json('.mcp.json')).mcpServers, config.mcpServers);
-for (const f of ['skills/setup/SKILL.md', 'scripts/install-addin.ps1', 'INSTALL-PROMPT.md', 'UPDATE-PROMPT.md', 'LICENSE', 'PRIVACY.md', 'SECURITY.md']) await access(path.join(isolated, f));
+// Each bundled skill needs frontmatter whose name matches its folder and a description hosts can match on.
+for (const skill of await readdir(path.join(isolated, 'skills'))) {
+  const text = await readFile(path.join(isolated, 'skills', skill, 'SKILL.md'), 'utf8');
+  const front = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text)?.[1] ?? '';
+  assert.equal(/^name: (.+)$/m.exec(front)?.[1]?.trim(), skill, `skills/${skill} name must match folder`);
+  const description = /^description: (.+)$/m.exec(front)?.[1]?.trim() ?? '';
+  assert.ok(description.length >= 40 && description.length <= 1024, `skills/${skill} description length ${description.length}`);
+}
+for (const f of ['skills/setup/SKILL.md', 'skills/spatial-check/SKILL.md', 'scripts/install-addin.ps1', 'INSTALL-PROMPT.md', 'UPDATE-PROMPT.md', 'LICENSE', 'PRIVACY.md', 'SECURITY.md']) await access(path.join(isolated, f));
 if (!process.env.PLUGIN_TEST_ROOT) {
   // Policy documents users read in the plugin must match the reviewed repository copies.
   for (const f of ['LICENSE', 'PRIVACY.md', 'SECURITY.md', 'TOOLS.md', 'COMPATIBILITY.md', 'INSTALL-PROMPT.md', 'UPDATE-PROMPT.md']) {
     assert.equal(await readFile(path.join(isolated, f), 'utf8'), await readFile(path.join(root, f), 'utf8'), `${f} bundle copy is stale; rebuild the plugin`);
+  }
+  // Every template skill must be bundled unchanged.
+  for (const skill of await readdir(path.join(root, 'plugin-template', 'skills'))) {
+    const f = path.join('skills', skill, 'SKILL.md');
+    assert.equal(await readFile(path.join(isolated, f), 'utf8'), await readFile(path.join(root, 'plugin-template', f), 'utf8'), `${f} bundle copy is stale; rebuild the plugin`);
   }
 }
 const checksums = await json('native/checksums.json');

@@ -100,3 +100,18 @@
 - 背景程序：只執行一次性指令（dotnet run／build、npm test、test:plugin、build-plugin），皆已自行結束；dotnet build server 可能常駐（MSBuild node reuse），已以 dotnet build-server shutdown 關閉。
 - 下一步：Pro 實測新 Add-in 後發 0.3.2（重新打包、checksum、CHANGELOG）；隔離驗收 update_attributes／create_feature／save_edits／export_layout（review.aprx）；GIS skill 評估（P2）。
 - 追加：Dependabot #10 被 #15 取代（server／client 2.3.1 → 2.4.0、inspector → 2.13.0），CI 全綠後合併（c8c3779）。執行期 SDK 升級但 Plugin bundle 未重建會讓套件仍內含 2.3.1，另開 PR 以 npm ci＋build-plugin 重建；THIRD-PARTY-NOTICES 原本寫死 2.3.1，build-plugin 改讀已安裝版本。本機 npm test、npm run test:plugin（list_sessions 352 ms）通過。
+
+## 2026-11-13（Claude 排程，週五）— 圖層座標系資訊與 spatial-check skill
+
+- 起始：main 與 origin 同步、無開啟中 PR；main 最近 Security Scan（11-09 排程）成功。未追蹤 docs/claude-schedule-handoff.md 保留不提交。專案無 AGENTS.md。
+- 依賴巡檢：`npm audit --registry=https://registry.npmjs.org/` 0 漏洞；`npm outdated` 無項目。
+- 盤點：既有 skills 只有 arcgis-pro、setup。座標系 API 只有 get_map（地圖 WKID）、get_raster_info（柵格 WKID）、get_camera；圖徵圖層座標系無從得知，用戶端無法在 buffer／project 前判斷是否為地理座標或 WKID 不一致。
+- 修正：addin/DataTools.cs 的 SourceInfo 對圖徵／柵格回傳 `spatialReference`（wkid、latestWkid、name、isGeographic、isProjected、unit、vcsWkid）與圖徵 `geometryType`，只讀中繼資料。tools.mjs 描述、TOOLS.md 地理處理段落同步。
+- 新增 skill plugin-template/skills/spatial-check：觸發條件、流程、未定義／地理座標／不一致／datum 風險判定、安全投影與結果驗證、5 個驗證案例（含舊 Add-in 與 prompt injection）。依 skill-creator 慣例撰寫；排程無人值守且本機 Pro 開的是使用者專案，未跑 skill-creator 的子代理評測與檢視流程。
+- 測試：test-plugin 新增每個 skill 的 frontmatter（name 對應資料夾、description 40–1024 字元）與 bundle 副本一致檢查；test-pro 在新 Add-in 回傳座標系時檢查欄位型別。
+- 證據：dotnet build addin/Connector.csproj -c Release 對本機 Pro DLL 0 警告 0 錯誤；npm test 通過；npm run test:plugin 通過（list_sessions 332 ms）；tests/OutputPathTests 37 項通過；build-plugin 重建，bundle 只有工具描述、TOOLS.md 副本與新 skill 變動；git diff --check 乾淨。
+- 未執行：新 DLL 未安裝進 Pro（使用者有 2 個 Pro 開著，安裝需關閉 Pro）；get_layer_source 新欄位與 spatial-check 5 個案例未以真實 Pro／AI 用戶端驗證；VSCode F5 未操作（無人值守，以一次性指令執行）。
+- 官方查核（2026-11-13）：三頁可開啟，資格不變；差異寫入 PUBLISHING.md（release notes 改選填、網域驗證、上架後每日重掃、單一審核中提交、MCP Registry 仍預覽）。
+- 版本：未變更版本、未發版。Add-in 0.3.2 累積 OutputPath 與座標系兩項執行期變更，待 Pro 實測後一起發。
+- 背景程序：只執行一次性指令（dotnet build／run、npm test、test:plugin、build-plugin），皆已結束；已執行 dotnet build-server shutdown。殘留的 dotnet.exe 18900 為 VSCode C# Dev Kit（11-12 啟動），非本次程序，未處理。
+- 下一步：使用者關閉 Pro 後安裝新 Add-in，於 review.aprx 實測 get_layer_source 新欄位、OutputPath 與 spatial-check 案例，再發 0.3.2；隔離驗收 update_attributes／create_feature／save_edits／export_layout。

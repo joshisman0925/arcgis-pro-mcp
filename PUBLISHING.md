@@ -37,6 +37,8 @@ codex plugin add arcgis-pro-mcp@joshisman-gis
 
 2026-11-06 複查差異：三頁皆可開啟，資格不變（本機 MCP 仍須允許名單）。新注意事項：(1) 既有「Skills only」Plugin 之後不能再加 MCP Server，第一次上傳的 ZIP 就必須含本機 MCP 設定；(2) 提交前須在乾淨的 ChatGPT 桌面版安裝並跑主要流程，上架後顯示「Desktop only」；(3) 提交者須為組織擁有者或具「Apps Management Write」權限，身分驗證在組織設定完成；(4) 審核帳號不能需要 MFA、簡訊／Email 驗證碼或私人網路；(5) 四個網址須公開可開且屬同一發布者，manifest 的 homepage／author.url 不能代替；(6) name ≤64 字元小寫與單一連字號，defaultPrompt 不可重複、不可 @mention；圖示 PNG／JPEG／WebP／SVG ≤5 MiB。submission 頁後段（欄位上限、審核流程）取自摘要，提交前於入口網站再確認。MCP Registry 仍標示預覽版，可能有破壞性變更或資料重設；`mcp-publisher validate` 可只驗證 server.json 不發布。
 
+2026-11-13 複查（[submission](https://developers.openai.com/plugins/deploy/submission)、[desktop-only](https://developers.openai.com/plugins/deploy/desktop-only)、[MCP Registry quickstart](https://modelcontextprotocol.io/registry/quickstart) 皆可開啟）：資格不變，本機 MCP 仍「limited to approved partners」，須以 organization ID 申請允許名單。差異：(1) release notes 改列為選填（publication.release_notes），草稿仍保留；(2) 新增網域驗證（`/.well-known/openai-apps-challenge`）、上架後每日重新掃描 MCP、每個 Plugin 同時只能有一個審核中提交；(3) 欄位上限 displayName／shortDescription 30、longDescription 4000、developerName 80；(4) MCP Registry 仍為預覽版，npm 型伺服器需公開 npm 套件、package.json `mcpName`（GitHub 驗證時以 `io.github.<user>/` 開頭）與相符的 server.json，description 上限 100 字元。submission 頁後段仍取自摘要，提交前於入口網站再確認。
+
 下次查核時重新開啟以上連結，記錄差異與查核日期。
 
 ## 維護者建置與驗證

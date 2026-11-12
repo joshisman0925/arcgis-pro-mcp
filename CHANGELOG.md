@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- `get_layer_source` 對圖徵與柵格圖層新增 `spatialReference`（wkid、latestWkid、name、isGeographic、isProjected、unit、vcsWkid）與圖徵 `geometryType`，讓用戶端在 buffer／clip／intersect／project 前辨識未定義、地理座標或不一致的座標系。只讀中繼資料，需下一版 Add-in（0.3.2）才生效；舊 Add-in 不回傳此欄位。
+- 新增 Plugin skill `spatial-check`：空間分析前的座標系與單位檢查流程（未定義／地理座標／WKID 不一致／datum 風險判定、安全投影與結果驗證、5 個驗證案例）。test-plugin 新增每個 skill 的 frontmatter（name 對應資料夾、description 長度）與 bundle 副本一致性檢查。
+
 - 依 Dependabot 升級的 @modelcontextprotocol/server 2.4.0 重建 Plugin bundle（否則套件仍內含 2.3.1）；build-plugin 改由已安裝套件讀取 THIRD-PARTY-NOTICES 的 MCP SDK／Zod 版本，避免依賴升級後聲明過期。
 
 - Add-in 寫出新檔前（export_map／export_layout／run_geoprocessing）以新 `addin/OutputPath.cs` 重複 MCP 端的 outputPath 規則，並拒絕對應網路磁碟機與不存在的磁碟，避免同帳號程式直接呼叫 Named Pipe 繞過；新增 `tests/OutputPathTests`（31 路徑＋6 磁碟類型案例），CI Connector job 不需 ArcGIS Pro 即可執行。需下一版 Add-in 才生效，0.3.1 未包含。

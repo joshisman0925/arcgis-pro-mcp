@@ -22265,7 +22265,7 @@ var definitions = [
   ["set_visibility", "Set layer visibility", "Set display checkbox; does not save project.", { ...layer, visible: boolean2() }, false, false, true],
   ["rename_layer", "Rename layer", "Rename the active-map layer; does not save project.", { ...layer, name }, false, false, true],
   ["query_features", "Query feature attributes", "Read bounded attribute rows. Filters are ANDed; no raw SQL. Geometry is excluded.", query, true, false, true],
-  ["get_layer_source", "Read layer source", "Read source path, dataset, connection availability and TIFF extension. Credentials are omitted.", layer, true, false, true],
+  ["get_layer_source", "Read layer source", "Read source path, dataset, connection availability, TIFF extension, and (Add-in 0.3.2+) feature/raster spatial reference and geometry type. Credentials are omitted.", layer, true, false, true],
   ["select_features", "Select matching features", "Select by structured filters or Object IDs. Requires a nonempty filter or ID list.", { ...layer, filters: filters.default([]), objectIds: array(id).min(1).max(1e3).optional(), mode: _enum(["new", "add", "remove", "intersect"]).default("new") }, false, false, true],
   ["clear_selection", "Clear feature selection", "Clear the specified layer selection, or all feature selections in active map when URI is omitted.", { ...base, layerUri: text.optional() }, false, false, true],
   ["zoom_to", "Zoom map view", "Zoom to full extent, a layer, or selected features in a layer.", { ...base, target: _enum(["full", "layer", "selection"]), layerUri: text.optional() }, false, false, true],
