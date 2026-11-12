@@ -75,6 +75,8 @@ filters 採 AND，支援 `eq/ne/gt/ge/lt/le/is_null/not_null`；目前比較支�
 
 需指定新 outputPath 與 `confirm: true`，SDK overwriteoutput 設為 false。輸入的選取及定義查詢可能影響結果。輸出立即落地，不能藉由不儲存 APRX 撤銷；工具不會自動將結果加入地圖，之後可用 `add_layer`。
 
+執行 buffer、clip、intersect、project 前先確認座標系：`get_map` 回傳地圖 WKID，`get_layer_source`（Add-in 0.3.2 起）回傳圖徵／柵格圖層的 `spatialReference`（wkid、latestWkid、name、isGeographic、isProjected、unit、vcsWkid）與 `geometryType`；`get_raster_info` 另有柵格 WKID。地理座標系（度）的資料做公尺距離緩衝或面積比較前，應先 project 到適當投影座標系。Plugin 內建 `spatial-check` skill 說明此流程。
+
 Project 工具目前不提供自訂 datum transformation；涉及不同 datum 時請先評估轉換需求。地理處理可能超過一般工具時間，AI 用戶端 timeout 建議至少 180 秒；Server 等待 Pro 上限為 120 秒。逾時後先確認輸出現況，再決定是否重試。
 
 ## 編輯與儲存

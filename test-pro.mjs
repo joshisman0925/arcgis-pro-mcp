@@ -42,6 +42,12 @@ try {
       result.geoprocessingWhitelist = await call('list_geoprocessing_tools', { processId: pid });
       if (feature) {
         result.source = await call('get_layer_source', { processId: pid, layerUri: feature.uri });
+        // Add-in 0.3.2+ reports the feature class spatial reference; older Add-ins omit the field.
+        if ('spatialReference' in result.source && result.source.spatialReference !== null) {
+          assert.equal(typeof result.source.spatialReference.wkid, 'number');
+          assert.equal(typeof result.source.spatialReference.isGeographic, 'boolean');
+          assert.equal(typeof result.source.geometryType, 'string');
+        }
         result.query = await call('query_features', { processId: pid, layerUri: feature.uri, limit: 2 });
         result.renderer = await call('get_renderer', { processId: pid, layerUri: feature.uri });
       }

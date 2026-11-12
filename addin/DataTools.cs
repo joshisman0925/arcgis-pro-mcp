@@ -103,20 +103,27 @@ internal static partial class ProTools
         throw new ArgumentException("Unknown data action");
     }
 
+    // Metadata only: identifiers and units let the client detect unknown, geographic or mismatched coordinate systems before analysis.
+    private static object? SpatialReferenceInfo(SpatialReference? sr) => sr == null ? null : new {
+        wkid = sr.Wkid, latestWkid = sr.LatestWkid, name = sr.Name, isGeographic = sr.IsGeographic, isProjected = sr.IsProjected,
+        unit = sr.Unit?.Name, vcsWkid = sr.HasVcs ? sr.VcsWkid : (int?)null };
     private static object SourceInfo(Layer layer) {
-        string? path = null; string? sourceError = null; bool? available = null;
+        string? path = null; string? sourceError = null; bool? available = null; object? spatialReference = null; string? geometryType = null;
         try {
             var uri = layer.GetPath();
             if (uri?.IsFile == true) path = uri.LocalPath;
             else if (uri != null) path = new UriBuilder(uri) { UserName = "", Password = "", Query = "", Fragment = "" }.Uri.GetLeftPart(UriPartial.Path);
-            if (layer is FeatureLayer feature) { using var table = feature.GetTable(); using var def = table.GetDefinition(); available = true; }
-            else if (layer is BasicRasterLayer image) { using var raster = image.GetRaster(); available = raster != null; }
+            if (layer is FeatureLayer feature) {
+                using var table = feature.GetTable(); using var def = table.GetDefinition(); available = true;
+                spatialReference = SpatialReferenceInfo(feature.GetSpatialReference()); geometryType = feature.ShapeType.ToString();
+            }
+            else if (layer is BasicRasterLayer image) { using var raster = image.GetRaster(); available = raster != null; spatialReference = SpatialReferenceInfo(raster?.GetSpatialReference()); }
         } catch (Exception ex) { available = false; sourceError = ex.GetType().Name + ": source could not be opened"; }
         ArcGIS.Core.CIM.CIMStandardDataConnection? connection = null;
         try { connection = layer.GetDataConnection() as ArcGIS.Core.CIM.CIMStandardDataConnection; }
         catch { sourceError ??= "Data connection metadata is not available for this layer type"; }
         return new { layerUri = layer.URI, name = layer.Name, sourcePath = path, dataset = connection?.Dataset,
-            workspaceFactory = connection?.WorkspaceFactory.ToString(), available, error = sourceError,
+            workspaceFactory = connection?.WorkspaceFactory.ToString(), available, error = sourceError, spatialReference, geometryType,
             isTiff = path != null && (System.IO.Path.GetExtension(path).Equals(".tif", StringComparison.OrdinalIgnoreCase) || System.IO.Path.GetExtension(path).Equals(".tiff", StringComparison.OrdinalIgnoreCase)) };
     }
 
