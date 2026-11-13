@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "2.4.0",
-    "@modelcontextprotocol/inspector": "2.13.0",
+    "@modelcontextprotocol/inspector": "2.14.0",
     "esbuild": "0.28.2"
   }
 }
