@@ -115,3 +115,13 @@
 - 版本：未變更版本、未發版。Add-in 0.3.2 累積 OutputPath 與座標系兩項執行期變更，待 Pro 實測後一起發。
 - 背景程序：只執行一次性指令（dotnet build／run、npm test、test:plugin、build-plugin），皆已結束；已執行 dotnet build-server shutdown。殘留的 dotnet.exe 18900 為 VSCode C# Dev Kit（11-12 啟動），非本次程序，未處理。
 - 下一步：使用者關閉 Pro 後安裝新 Add-in，於 review.aprx 實測 get_layer_source 新欄位、OutputPath 與 spatial-check 案例，再發 0.3.2；隔離驗收 update_attributes／create_feature／save_edits／export_layout。
+
+## 2026-11-20（Claude 排程，週五）— 修補 hono 弱點，恢復 Security Scan
+
+- 起始：main 與 origin 同步；開啟中 PR 只有 Dependabot #18（inspector 2.13.0 → 2.14.0，lockfile 仍為 hono 4.13.13，Security Gate 紅，未修弱點）。main 最近一次 Security Scan（11-16 排程）失敗：OSV-Scanner 回報 hono／@hono/node-server。未追蹤 docs/claude-schedule-handoff.md 保留不提交。
+- 依賴巡檢：`npm audit` 2 個 moderate（皆為 inspector 的 devDependency 傳遞依賴，非執行期、不進 Plugin bundle）：@hono/node-server 2.1.5（GHSA-qv5m-9pm6-hqp3、GHSA-jpvv-r467-5p4w）、hono 4.13.13（GHSA-4m76-xfj5-7975 等 5 項）。
+- 修正：`npm audit fix` 只動 package-lock.json：hono → 4.13.19、@hono/node-server → 2.1.9，無 package.json 變動。
+- 證據：修正後 `npm audit` 0 漏洞；`npm test`（含 check-lockfile HTTPS＋sha512）通過。
+- 未執行：本機 F5、test:plugin（devDependency 變更不影響 bundle）；以 PR CI 驗證。Add-in 0.3.2 Pro 實測與發版條件不變。
+- 背景程序：只跑一次性 npm 指令，皆已結束。
+- 下一步：PR 合併後 #18 需 rebase（Dependabot 自動處理）；使用者關閉 Pro 後實測新 Add-in 再發 0.3.2。
