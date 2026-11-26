@@ -125,3 +125,13 @@
 - 未執行：本機 F5、test:plugin（devDependency 變更不影響 bundle）；以 PR CI 驗證。Add-in 0.3.2 Pro 實測與發版條件不變。
 - 背景程序：只跑一次性 npm 指令，皆已結束。
 - 下一步：PR 合併後 #18 需 rebase（Dependabot 自動處理）；使用者關閉 Pro 後實測新 Add-in 再發 0.3.2。
+
+## 2026-11-27（Claude 排程）：inspector 2.15.0 升級（取代無法合併的 Dependabot #18）
+
+- 起點：main 與 origin 同步；開啟中 PR 只有 Dependabot #18（inspector 2.13.0 → 2.15.0）；main 最近 Security Scan（2026-11-23）成功。
+- 依賴檢查：`npm audit` 0 弱點。
+- 阻礙：#18 head 只有被跳過的 Connector tests／CI（Dependabot 觸發的 run 被 skip），分支保護要求 strict 檢查，`gh pr merge` 回報 base branch policy 禁止；不使用 --admin。
+- 處置：改在 codex/bump-inspector-2.15.0 以同一份 package.json／package-lock.json 升級，由本 PR 跑完整 CI；#18 於本 PR 合併後會被取代／關閉。僅 devDependency，不影響 Plugin bundle。
+- 驗證：`npm ci`、`npm audit` 0 弱點、`npm test` exit 0、`npm run test:plugin` exit 0。未驗證：Add-in 0.3.2 Pro 實測、官方目錄規範查核（本週未重查，仍沿用 2026-11-13 結論）。
+- 背景程序：僅執行一次性 npm 指令，皆已結束；未啟動常駐程序。系統中其他 node.exe 非本次啟動，未動。
+- 下週優先：Pro 實測 get_layer_source／spatial-check；重查官方目錄規範；check-submission 持續。
