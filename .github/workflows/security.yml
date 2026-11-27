@@ -2,7 +2,8 @@ name: Security Scan
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review, edited]
   schedule:
     - cron: '0 3 * * 1'
 
@@ -10,12 +11,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: security-${{ github.event_name }}-${{ github.ref }}
+  group: ${{ github.event.action == 'edited' && github.event.changes.base == null && format('security-edit-{0}', github.run_id) || format('security-{0}-{1}', github.event_name, github.ref) }}
   cancel-in-progress: true
 
 jobs:
   security:
-    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
+    if: ${{ github.event_name != 'pull_request' || (!github.event.pull_request.draft && (github.event.action != 'edited' || github.event.changes.base != null)) }}
     uses: singi0771/ci-standards/.github/workflows/security-reusable.yml@v2
     with:
       severity: CRITICAL,HIGH
